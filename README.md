@@ -4,6 +4,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
+npm install next react react-dom
+
+prisma generate
+
+npx prisma migrate dev
+
 ```bash
 npm run dev
 # or
