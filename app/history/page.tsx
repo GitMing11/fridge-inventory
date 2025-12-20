@@ -41,7 +41,7 @@ export default function HistoryPage() {
 	return (
 		<div
 			style={{
-				maxWidth: 650,
+				maxWidth: 1000,
 				margin: '1rem auto',
 				padding: '2rem',
 				backgroundColor: '#f9f9f9',

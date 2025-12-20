@@ -26,6 +26,8 @@ export default function FridgeInventory() {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 	const [showModal, setShowModal] = useState(false);
+	const [editingItem, setEditingItem] = useState<Ingredient | null>(null); // 수정할 아이템
+
 	const [sortKey, setSortKey] = useState<
 		'expiration' | 'purchasedAt' | 'category' | 'name'
 	>('expiration');
@@ -54,16 +56,35 @@ export default function FridgeInventory() {
 		}
 	};
 
+	// 수정 버튼 클릭 시 실행
+	const handleEditClick = (item: Ingredient) => {
+		setEditingItem(item);
+		setShowModal(true);
+	};
+
+	// 모달 닫기 (초기화)
+	const handleCloseModal = () => {
+		setShowModal(false);
+		setEditingItem(null); // 수정 모드 해제
+	};
+
+	// 수정 완료 시 리스트 업데이트
+	const handleUpdateComplete = (updatedItem: Ingredient) => {
+		setIngredients((prev) =>
+			prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
+		);
+	};
+
 	return (
 		<div
 			style={{
-				maxWidth: 700, // 조금 더 넓게
+				maxWidth: 1000,
 				margin: '1rem auto',
 				padding: '2rem',
 				backgroundColor: '#f9f9f9',
-				borderRadius: '16px', // 둥글게 (통일)
+				borderRadius: '16px',
 				border: '1px solid #eee',
-				boxShadow: '0 4px 12px rgba(0,0,0,0.05)', // 부드러운 그림자 (통일)
+				boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
 				fontFamily: 'Arial, sans-serif',
 				color: '#333',
 			}}
@@ -88,13 +109,16 @@ export default function FridgeInventory() {
 				}}
 			>
 				<button
-					onClick={() => setShowModal(true)}
+					onClick={() => {
+						setEditingItem(null); // 추가 모드로 초기화
+						setShowModal(true);
+					}}
 					style={{
 						padding: '0.7rem 1.2rem',
 						backgroundColor: '#333',
 						color: '#fff',
 						border: 'none',
-						borderRadius: '10px', // 버튼도 둥글게
+						borderRadius: '10px',
 						cursor: 'pointer',
 						fontWeight: 600,
 						fontSize: '0.95rem',
@@ -117,6 +141,7 @@ export default function FridgeInventory() {
 				onSortKeyChange={setSortKey}
 				onSortOrderChange={setSortOrder}
 				onConsume={handleConsume}
+				onEdit={handleEditClick} // 수정 핸들러 전달
 			/>
 
 			{showModal && (
@@ -124,7 +149,9 @@ export default function FridgeInventory() {
 					categories={categories}
 					setCategories={setCategories}
 					onAdd={(newItem) => setIngredients([...ingredients, newItem])}
-					onClose={() => setShowModal(false)}
+					onUpdate={handleUpdateComplete} // 수정 완료 핸들러
+					initialData={editingItem} // 수정할 데이터 전달
+					onClose={handleCloseModal}
 				/>
 			)}
 		</div>

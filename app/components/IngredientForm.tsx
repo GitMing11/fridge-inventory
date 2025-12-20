@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+// components/IngredientForm.tsx
+import React, { useState, useEffect } from 'react';
 
 interface Category {
 	id: number;
@@ -20,21 +21,28 @@ interface Props {
 	categories: Category[];
 	setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
 	onAdd: (newItem: Ingredient) => void;
+	onUpdate?: (updatedItem: Ingredient) => void; // 수정 완료 시 호출
+	initialData?: Ingredient | null; // 수정할 데이터 (없으면 추가 모드)
 	onClose: () => void;
 }
 
 function getToday(): string {
 	const today = new Date();
-	const yyyy = today.getFullYear();
-	const mm = String(today.getMonth() + 1).padStart(2, '0');
-	const dd = String(today.getDate()).padStart(2, '0');
-	return `${yyyy}-${mm}-${dd}`;
+	return today.toISOString().split('T')[0];
+}
+
+// 날짜 문자열(ISO)을 YYYY-MM-DD로 변환
+function formatDateInput(dateStr: string): string {
+	if (!dateStr) return getToday();
+	return new Date(dateStr).toISOString().split('T')[0];
 }
 
 export default function IngredientForm({
 	categories,
 	setCategories,
 	onAdd,
+	onUpdate,
+	initialData,
 	onClose,
 }: Props) {
 	const [newIngredient, setNewIngredient] = useState({
@@ -48,6 +56,20 @@ export default function IngredientForm({
 
 	const [newCategory, setNewCategory] = useState('');
 
+	// 수정 모드일 경우 초기 데이터 세팅
+	useEffect(() => {
+		if (initialData) {
+			setNewIngredient({
+				name: initialData.name,
+				categoryId: initialData.categoryId,
+				quantity: initialData.quantity,
+				unit: initialData.unit,
+				expiration: formatDateInput(initialData.expiration),
+				purchasedAt: formatDateInput(initialData.purchasedAt),
+			});
+		}
+	}, [initialData]);
+
 	const handleAddCategory = async () => {
 		if (!newCategory.trim()) return;
 
@@ -60,7 +82,7 @@ export default function IngredientForm({
 		if (res.ok) {
 			const created = await res.json();
 			setCategories((prev) => [...prev, created]);
-			setNewIngredient({ ...newIngredient, categoryId: created.id });
+			setNewIngredient((prev) => ({ ...prev, categoryId: created.id }));
 			setNewCategory('');
 		} else {
 			alert('카테고리 추가 실패');
@@ -70,32 +92,56 @@ export default function IngredientForm({
 	const handleSubmit = async () => {
 		const { name, categoryId, quantity, unit, expiration, purchasedAt } =
 			newIngredient;
+
 		if (!name || !categoryId || !unit || !expiration || !purchasedAt) {
 			alert('모든 필드를 채워주세요.');
 			return;
 		}
 
-		const res = await fetch('/api/ingredients', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(newIngredient),
-		});
+		try {
+			if (initialData && onUpdate) {
+				// --- 수정 모드 (PATCH) ---
+				const res = await fetch(`/api/ingredients/${initialData.id}`, {
+					method: 'PATCH',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(newIngredient),
+				});
 
-		if (res.ok) {
-			const added = await res.json();
-			onAdd(added);
-			onClose();
-		} else {
-			alert('재료 추가 실패');
+				if (res.ok) {
+					const updated = await res.json();
+					onUpdate(updated);
+					onClose();
+				} else {
+					alert('수정 실패');
+				}
+			} else {
+				// --- 추가 모드 (POST) ---
+				const res = await fetch('/api/ingredients', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(newIngredient),
+				});
+
+				if (res.ok) {
+					const added = await res.json();
+					onAdd(added);
+					onClose();
+				} else {
+					alert('추가 실패');
+				}
+			}
+		} catch (e) {
+			console.error(e);
+			alert('오류가 발생했습니다.');
 		}
 	};
 
-	// 공통 입력창 스타일 (동글동글하고 깔끔하게)
+	// 공통 입력창 스타일
 	const inputBaseStyle: React.CSSProperties = {
 		padding: '0.6rem 0.8rem',
 		fontSize: '0.95rem',
 		border: '1px solid #ccc',
-		borderRadius: '8px', // 더 둥글게
+		borderRadius: '8px',
 		backgroundColor: '#fff',
 		color: '#333',
 		outline: 'none',
@@ -103,6 +149,8 @@ export default function IngredientForm({
 		boxSizing: 'border-box',
 		transition: 'border-color 0.2s',
 	};
+
+	const isEditMode = !!initialData;
 
 	return (
 		<div
@@ -113,8 +161,8 @@ export default function IngredientForm({
 				left: 0,
 				width: '100vw',
 				height: '100vh',
-				backgroundColor: 'rgba(0,0,0,0.5)', // 배경 조금 더 진하게
-				backdropFilter: 'blur(4px)', // 블러 효과 추가
+				backgroundColor: 'rgba(0,0,0,0.5)',
+				backdropFilter: 'blur(4px)',
 				display: 'flex',
 				justifyContent: 'center',
 				alignItems: 'center',
@@ -125,11 +173,11 @@ export default function IngredientForm({
 				onClick={(e) => e.stopPropagation()}
 				style={{
 					backgroundColor: '#fff',
-					borderRadius: '16px', // 모달 모서리 둥글게
+					borderRadius: '16px',
 					padding: '2rem',
 					width: '90%',
 					maxWidth: '500px',
-					boxShadow: '0 10px 25px rgba(0,0,0,0.2)', // 그림자 추가로 입체감
+					boxShadow: '0 10px 25px rgba(0,0,0,0.2)',
 					display: 'flex',
 					flexDirection: 'column',
 					gap: '1.2rem',
@@ -144,7 +192,7 @@ export default function IngredientForm({
 					}}
 				>
 					<h2 style={{ margin: 0, fontSize: '1.5rem', color: '#333' }}>
-						재료 추가
+						{isEditMode ? '재료 수정' : '재료 추가'}
 					</h2>
 					<button
 						onClick={onClose}
@@ -162,7 +210,7 @@ export default function IngredientForm({
 
 				{/* 폼 영역 */}
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-					{/* 카테고리 (높이 맞춤) */}
+					{/* 카테고리 */}
 					<div style={rowStyle}>
 						<label style={labelStyle}>카테고리</label>
 						<div style={{ flex: 1, display: 'flex', gap: '0.5rem' }}>
@@ -176,7 +224,7 @@ export default function IngredientForm({
 								}
 								style={{
 									...inputBaseStyle,
-									flex: '0 0 35%', // 비율 조정
+									flex: '0 0 35%',
 									cursor: 'pointer',
 								}}
 							>
@@ -305,13 +353,13 @@ export default function IngredientForm({
 						</div>
 					</div>
 
-					{/* 추가하기 버튼 */}
+					{/* 버튼 */}
 					<button
 						onClick={handleSubmit}
 						style={{
 							marginTop: '1.5rem',
 							padding: '0.9rem',
-							backgroundColor: '#333', // FridgeInventory 버튼과 색상 통일
+							backgroundColor: isEditMode ? '#1e88e5' : '#333', // 수정 시 파란색 계열
 							color: '#fff',
 							fontSize: '1rem',
 							fontWeight: 'bold',
@@ -326,7 +374,7 @@ export default function IngredientForm({
 						}
 						onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
 					>
-						추가하기
+						{isEditMode ? '수정 완료' : '추가하기'}
 					</button>
 				</div>
 			</div>
