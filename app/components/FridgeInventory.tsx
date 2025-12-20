@@ -1,9 +1,10 @@
-// components/FridgeInventory.tsx
+// app/components/FridgeInventory.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
+import IngredientDetailModal from './IngredientDetailModal'; // 새로 추가
 
 interface Category {
 	id: number;
@@ -20,13 +21,17 @@ interface Ingredient {
 	expiration: string;
 	purchasedAt: string;
 	createdAt: string;
+	updatedAt?: string; // 추가
 }
 
 export default function FridgeInventory() {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 	const [showModal, setShowModal] = useState(false);
-	const [editingItem, setEditingItem] = useState<Ingredient | null>(null); // 수정할 아이템
+
+	// 수정 중인 아이템과 상세 보기 중인 아이템 상태 관리
+	const [editingItem, setEditingItem] = useState<Ingredient | null>(null);
+	const [viewingItem, setViewingItem] = useState<Ingredient | null>(null); // 추가
 
 	const [sortKey, setSortKey] = useState<
 		'expiration' | 'purchasedAt' | 'category' | 'name'
@@ -56,19 +61,21 @@ export default function FridgeInventory() {
 		}
 	};
 
-	// 수정 버튼 클릭 시 실행
 	const handleEditClick = (item: Ingredient) => {
 		setEditingItem(item);
 		setShowModal(true);
 	};
 
-	// 모달 닫기 (초기화)
-	const handleCloseModal = () => {
-		setShowModal(false);
-		setEditingItem(null); // 수정 모드 해제
+	// 상세 보기 클릭 핸들러
+	const handleViewClick = (item: Ingredient) => {
+		setViewingItem(item);
 	};
 
-	// 수정 완료 시 리스트 업데이트
+	const handleCloseModal = () => {
+		setShowModal(false);
+		setEditingItem(null);
+	};
+
 	const handleUpdateComplete = (updatedItem: Ingredient) => {
 		setIngredients((prev) =>
 			prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
@@ -110,7 +117,7 @@ export default function FridgeInventory() {
 			>
 				<button
 					onClick={() => {
-						setEditingItem(null); // 추가 모드로 초기화
+						setEditingItem(null);
 						setShowModal(true);
 					}}
 					style={{
@@ -141,17 +148,27 @@ export default function FridgeInventory() {
 				onSortKeyChange={setSortKey}
 				onSortOrderChange={setSortOrder}
 				onConsume={handleConsume}
-				onEdit={handleEditClick} // 수정 핸들러 전달
+				onEdit={handleEditClick}
+				onView={handleViewClick} // 핸들러 전달
 			/>
 
+			{/* 추가/수정 모달 */}
 			{showModal && (
 				<IngredientForm
 					categories={categories}
 					setCategories={setCategories}
 					onAdd={(newItem) => setIngredients([...ingredients, newItem])}
-					onUpdate={handleUpdateComplete} // 수정 완료 핸들러
-					initialData={editingItem} // 수정할 데이터 전달
+					onUpdate={handleUpdateComplete}
+					initialData={editingItem}
 					onClose={handleCloseModal}
+				/>
+			)}
+
+			{/* 상세 정보 모달 */}
+			{viewingItem && (
+				<IngredientDetailModal
+					item={viewingItem}
+					onClose={() => setViewingItem(null)}
 				/>
 			)}
 		</div>

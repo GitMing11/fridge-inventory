@@ -1,4 +1,4 @@
-// components/IngredientList.tsx
+// app/components/IngredientList.tsx
 import React from 'react';
 
 interface Category {
@@ -16,6 +16,7 @@ interface Ingredient {
 	expiration: string;
 	purchasedAt: string;
 	createdAt: string;
+	updatedAt?: string;
 }
 
 interface Props {
@@ -26,22 +27,7 @@ interface Props {
 	onSortOrderChange: (order: Props['sortOrder']) => void;
 	onConsume: (id: number, status: 'eaten' | 'discarded') => void;
 	onEdit: (item: Ingredient) => void;
-}
-
-// D-Day 계산 헬퍼 함수
-function getDDay(dateStr: string) {
-	const target = new Date(dateStr);
-	const today = new Date();
-
-	// 정확한 날짜 차이 계산을 위해 시간을 00:00:00으로 초기화
-	target.setHours(0, 0, 0, 0);
-	today.setHours(0, 0, 0, 0);
-
-	const diffTime = target.getTime() - today.getTime();
-	// 밀리초 -> 일 단위 변환
-	const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-	return days;
+	onView: (item: Ingredient) => void;
 }
 
 export default function IngredientList({
@@ -52,6 +38,7 @@ export default function IngredientList({
 	onSortOrderChange,
 	onConsume,
 	onEdit,
+	onView,
 }: Props) {
 	const handleSort = (key: typeof sortKey) => {
 		if (sortKey === key) {
@@ -74,6 +61,15 @@ export default function IngredientList({
 				{sortOrder === 'asc' ? '▲' : '▼'}
 			</span>
 		);
+	};
+
+	const getDDay = (expiration: string) => {
+		const now = new Date();
+		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+		const [y, m, d] = expiration.split('-').map(Number);
+		const exp = new Date(y, m - 1, d);
+		const diffMs = exp.getTime() - today.getTime();
+		return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 	};
 
 	const sorted = [...ingredients].sort((a, b) => {
@@ -120,9 +116,10 @@ export default function IngredientList({
 				<thead>
 					<tr style={{ backgroundColor: '#f3f4f6' }}>
 						{[
+							// 순서 변경: 카테고리 -> 이름 -> 수량 -> ...
+							{ key: 'category', label: '카테고리' },
 							{ key: 'name', label: '이름' },
 							{ key: null, label: '수량' },
-							{ key: 'category', label: '카테고리' },
 							{ key: 'expiration', label: '유통기한' },
 							{ key: 'purchasedAt', label: '구매일' },
 							{ key: null, label: '관리' },
@@ -149,9 +146,9 @@ export default function IngredientList({
 
 				<tbody>
 					{sorted.map((i, index) => {
-						const daysLeft = getDDay(i.expiration);
-						const isExpired = daysLeft < 0;
-						const isImminent = daysLeft >= 0 && daysLeft <= 3; // 3일 이내 임박
+						const dDay = getDDay(i.expiration);
+						const isExpired = dDay < 0;
+						const isUrgent = dDay >= 0 && dDay <= 3;
 
 						return (
 							<tr
@@ -160,20 +157,33 @@ export default function IngredientList({
 									borderBottom:
 										index === sorted.length - 1 ? 'none' : '1px solid #eee',
 									transition: 'background-color 0.1s',
+									backgroundColor: isExpired ? '#fff5f5' : 'inherit',
 								}}
 							>
-								<td style={cellStyle}>
-									<span style={{ fontWeight: 500 }}>{i.name}</span>
+								{/* 1. 카테고리 */}
+								<td style={{ ...cellStyle, color: '#666' }}>
+									{i.category?.name}
 								</td>
+
+								{/* 2. 이름 */}
+								<td style={cellStyle}>
+									<span
+										style={{ fontWeight: 500, cursor: 'pointer' }}
+										onClick={() => onView(i)}
+									>
+										{i.name}
+									</span>
+								</td>
+
+								{/* 3. 수량 */}
 								<td style={cellStyle}>
 									{i.quantity}{' '}
 									<span style={{ fontSize: '0.85rem', color: '#888' }}>
 										{i.unit}
 									</span>
 								</td>
-								<td style={{ ...cellStyle, color: '#666' }}>
-									{i.category?.name}
-								</td>
+
+								{/* 4. 유통기한 */}
 								<td style={cellStyle}>
 									<div
 										style={{
@@ -181,54 +191,81 @@ export default function IngredientList({
 											alignItems: 'center',
 											justifyContent: 'center',
 											gap: '6px',
+											color: isExpired || isUrgent ? '#d32f2f' : '#333',
+											fontWeight: isExpired || isUrgent ? 600 : 400,
 										}}
 									>
-										{/* 날짜 표시 */}
-										<span
-											style={{
-												color: isExpired || isImminent ? '#d32f2f' : 'inherit', // 빨간색 강조
-												fontWeight: isExpired || isImminent ? 600 : 400,
-											}}
-										>
-											{new Date(i.expiration).toLocaleDateString()}
-										</span>
-
-										{/* 뱃지 표시 */}
-										{isExpired && (
-											<span style={badgeStyle('#ffebee', '#c62828')}>만료</span>
+										{new Date(i.expiration).toLocaleDateString()}
+										{isUrgent && (
+											<span
+												style={{
+													backgroundColor: '#ffebee',
+													color: '#c62828',
+													padding: '2px 6px',
+													borderRadius: '4px',
+													fontSize: '0.75rem',
+													border: '1px solid #ffcdd2',
+													whiteSpace: 'nowrap',
+												}}
+											>
+												D-{dDay === 0 ? 'Day' : dDay}
+											</span>
 										)}
-										{!isExpired && isImminent && (
-											<span style={badgeStyle('#ffebee', '#c62828')}>
-												{daysLeft === 0 ? 'D-Day' : `D-${daysLeft}`}
+										{isExpired && (
+											<span
+												style={{
+													backgroundColor: '#b71c1c',
+													color: '#fff',
+													padding: '2px 6px',
+													borderRadius: '4px',
+													fontSize: '0.75rem',
+													whiteSpace: 'nowrap',
+												}}
+											>
+												만료
 											</span>
 										)}
 									</div>
 								</td>
+
+								{/* 5. 구매일 */}
 								<td style={cellStyle}>
 									{new Date(i.purchasedAt).toLocaleDateString()}
 								</td>
+
+								{/* 6. 관리 버튼들 */}
 								<td style={cellStyle}>
 									<div
 										style={{
 											display: 'flex',
 											justifyContent: 'center',
-											gap: '0.5rem',
+											gap: '0.4rem',
 											alignItems: 'center',
 										}}
 									>
+										<button
+											onClick={() => onView(i)}
+											style={actionBtnStyle('#e3f2fd', '#1565c0')}
+										>
+											상세
+										</button>
+
 										<button
 											onClick={() => onEdit(i)}
 											style={actionBtnStyle('#f5f5f5', '#555')}
 										>
 											수정
 										</button>
+
 										<div
 											style={{
 												width: '1px',
 												height: '1rem',
 												backgroundColor: '#ddd',
+												margin: '0 2px',
 											}}
 										/>
+
 										<button
 											onClick={() => onConsume(i.id, 'eaten')}
 											style={actionBtnStyle('#e8f5e9', '#2e7d32')}
@@ -246,7 +283,6 @@ export default function IngredientList({
 							</tr>
 						);
 					})}
-
 					{ingredients.length === 0 && (
 						<tr>
 							<td
@@ -263,7 +299,6 @@ export default function IngredientList({
 	);
 }
 
-// 스타일 헬퍼
 const cellStyle: React.CSSProperties = {
 	textAlign: 'center',
 	padding: '0.8rem 0.5rem',
@@ -273,20 +308,11 @@ const actionBtnStyle = (bg: string, color: string): React.CSSProperties => ({
 	backgroundColor: bg,
 	color: color,
 	border: 'none',
-	padding: '0.4rem 0.8rem',
+	padding: '0.4rem 0.6rem',
 	borderRadius: '8px',
-	fontSize: '0.85rem',
+	fontSize: '0.8rem',
 	fontWeight: 600,
 	cursor: 'pointer',
 	transition: 'opacity 0.2s',
-});
-
-const badgeStyle = (bg: string, color: string): React.CSSProperties => ({
-	backgroundColor: bg,
-	color: color,
-	padding: '2px 6px',
-	borderRadius: '6px',
-	fontSize: '0.75rem',
-	fontWeight: 700,
 	whiteSpace: 'nowrap',
 });
