@@ -1,23 +1,7 @@
 // app/components/IngredientDetailModal.tsx
 import React from 'react';
 
-interface Category {
-	id: number;
-	name: string;
-}
-
-interface Ingredient {
-	id: number;
-	name: string;
-	categoryId: number;
-	category?: Category;
-	quantity: number;
-	unit: string;
-	expiration: string;
-	purchasedAt: string;
-	createdAt: string;
-	updatedAt?: string; // 수정일이 있을 수 있음
-}
+import { Category, Ingredient } from '../../types';
 
 interface Props {
 	item: Ingredient;

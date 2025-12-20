@@ -1,21 +1,7 @@
 // components/IngredientForm.tsx
 import React, { useState, useEffect } from 'react';
 
-interface Category {
-	id: number;
-	name: string;
-}
-
-interface Ingredient {
-	id: number;
-	name: string;
-	categoryId: number;
-	quantity: number;
-	unit: string;
-	expiration: string;
-	purchasedAt: string;
-	createdAt: string;
-}
+import { Category, Ingredient } from '../../types';
 
 interface Props {
 	categories: Category[];

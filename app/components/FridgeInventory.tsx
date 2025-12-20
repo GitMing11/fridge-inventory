@@ -5,24 +5,7 @@ import React, { useEffect, useState } from 'react';
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
 import IngredientDetailModal from './IngredientDetailModal'; // 새로 추가
-
-interface Category {
-	id: number;
-	name: string;
-}
-
-interface Ingredient {
-	id: number;
-	name: string;
-	categoryId: number;
-	category?: Category;
-	quantity: number;
-	unit: string;
-	expiration: string;
-	purchasedAt: string;
-	createdAt: string;
-	updatedAt?: string; // 추가
-}
+import { Category, Ingredient } from '../../types';
 
 export default function FridgeInventory() {
 	const [categories, setCategories] = useState<Category[]>([]);
