@@ -24,17 +24,30 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 
 	// D-Day 계산
 	const getDDay = (expiration: string) => {
-		const now = new Date();
-		const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-		const [y, m, d] = expiration.split('-').map(Number);
-		const exp = new Date(y, m - 1, d);
+		const today = new Date();
+		const exp = new Date(expiration);
+
+		// 날짜 기준으로만 비교 (시간 제거)
+		today.setHours(0, 0, 0, 0);
+		exp.setHours(0, 0, 0, 0);
+
 		const diffMs = exp.getTime() - today.getTime();
 		return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 	};
 
 	const dDay = getDDay(item.expiration);
-	const dDayText = dDay < 0 ? '만료됨' : dDay === 0 ? 'D-Day' : `D-${dDay}`;
-	const dDayColor = dDay <= 3 ? '#c62828' : '#2e7d32'; // 임박하면 빨강, 여유있으면 초록
+	const dDayText =
+		dDay === 0
+			? 'D-Day'
+			: dDay > 0
+			? `D-${dDay}` // 남은 날짜
+			: `만료, D+${Math.abs(dDay)}`; // 만료 후 날짜
+	const dDayColor =
+		dDay < 0
+			? '#9e9e9e' // 만료됨: 회색
+			: dDay <= 3
+			? '#c62828' // 임박: 빨강
+			: '#2e7d32'; // 여유: 초록
 
 	return (
 		<div
@@ -109,12 +122,12 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 					/>
 					<DetailRow
 						label="유통기한"
-						value={`${item.expiration} (${dDayText})`}
+						value={`${formatDate(item.expiration)} (${dDayText})`}
 						valueColor={dDayColor}
 					/>
 					<DetailRow
 						label="구매일"
-						value={item.purchasedAt}
+						value={formatDate(item.purchasedAt)}
 					/>
 
 					<div style={{ borderTop: '1px solid #eee', margin: '0.5rem 0' }} />
