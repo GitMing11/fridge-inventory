@@ -6,6 +6,7 @@ import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
 import IngredientDetailModal from './IngredientDetailModal'; // 새로 추가
 import { Category, Ingredient } from '../../types';
+import ConsumeModal from './ConsumeModal';
 
 export default function FridgeInventory() {
 	const [categories, setCategories] = useState<Category[]>([]);
@@ -21,6 +22,12 @@ export default function FridgeInventory() {
 	>('expiration');
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
+	// 소비/폐기 처리를 위한 상태 추가
+	const [consumingTarget, setConsumingTarget] = useState<{
+		item: Ingredient;
+		status: 'eaten' | 'discarded';
+	} | null>(null);
+
 	useEffect(() => {
 		fetch('/api/categories')
 			.then((res) => res.json())
@@ -30,15 +37,40 @@ export default function FridgeInventory() {
 			.then(setIngredients);
 	}, []);
 
-	const handleConsume = async (id: number, status: 'eaten' | 'discarded') => {
-		const res = await fetch(`/api/ingredients/${id}/consume`, {
+	// [수정됨] 1. 버튼 클릭 시 모달 열기
+	const handleConsumeClick = (id: number, status: 'eaten' | 'discarded') => {
+		const target = ingredients.find((i) => i.id === id);
+		if (target) {
+			setConsumingTarget({ item: target, status });
+		}
+	};
+
+	// [추가됨] 2. 모달에서 수량 입력 후 '확인' 시 API 호출
+	const handleConfirmConsume = async (quantity: number) => {
+		if (!consumingTarget) return;
+
+		const { item, status } = consumingTarget;
+
+		const res = await fetch(`/api/ingredients/${item.id}/consume`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ status }),
+			body: JSON.stringify({ status, quantity }), // 수량도 함께 전송
 		});
 
 		if (res.ok) {
-			setIngredients((prev) => prev.filter((i) => i.id !== id));
+			// 성공 시 목록 갱신 로직
+			if (quantity >= item.quantity) {
+				// 전체 소비: 목록에서 제거
+				setIngredients((prev) => prev.filter((i) => i.id !== item.id));
+			} else {
+				// 부분 소비: 수량 업데이트
+				setIngredients((prev) =>
+					prev.map((i) =>
+						i.id === item.id ? { ...i, quantity: i.quantity - quantity } : i
+					)
+				);
+			}
+			setConsumingTarget(null); // 모달 닫기
 		} else {
 			alert('처리 실패');
 		}
@@ -130,7 +162,7 @@ export default function FridgeInventory() {
 				sortOrder={sortOrder}
 				onSortKeyChange={setSortKey}
 				onSortOrderChange={setSortOrder}
-				onConsume={handleConsume}
+				onConsume={handleConsumeClick}
 				onEdit={handleEditClick}
 				onView={handleViewClick} // 핸들러 전달
 			/>
@@ -152,6 +184,16 @@ export default function FridgeInventory() {
 				<IngredientDetailModal
 					item={viewingItem}
 					onClose={() => setViewingItem(null)}
+				/>
+			)}
+
+			{/* [추가됨] 소비/폐기 수량 입력 모달 */}
+			{consumingTarget && (
+				<ConsumeModal
+					item={consumingTarget.item}
+					status={consumingTarget.status}
+					onConfirm={handleConfirmConsume}
+					onClose={() => setConsumingTarget(null)}
 				/>
 			)}
 		</div>
