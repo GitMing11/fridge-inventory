@@ -42,13 +42,14 @@ export default function HistoryPage() {
 		<div
 			style={{
 				maxWidth: 1000,
-				margin: '1rem auto',
-				padding: '2rem',
-				backgroundColor: '#f9f9f9',
-				borderRadius: '16px', // 둥글게 (메인과 통일)
-				border: '1px solid #eee',
-				boxShadow: '0 4px 12px rgba(0,0,0,0.05)', // 부드러운 그림자 추가
-				fontFamily: 'Arial, sans-serif',
+				margin: '2rem auto',
+				padding: '2.5rem',
+				backgroundColor: '#ffffff',
+				borderRadius: '24px',
+				border: '1px solid #f0f0f0',
+				boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
+				fontFamily:
+					'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
 				color: '#333',
 			}}
 		>
