@@ -1,7 +1,7 @@
-// app/components/IngredientList.tsx
-import React from 'react';
+'use client';
 
-import { Category, Ingredient } from '../../types';
+import React from 'react';
+import { Ingredient } from '../../types';
 
 interface Props {
 	ingredients: Ingredient[];
@@ -35,13 +35,9 @@ export default function IngredientList({
 
 	const getSortIcon = (key: typeof sortKey) => {
 		if (key !== sortKey)
-			return (
-				<span style={{ marginLeft: 4, color: '#ccc', fontSize: '0.8rem' }}>
-					⇅
-				</span>
-			);
+			return <span className="ml-1 text-xs text-gray-300">⇅</span>;
 		return (
-			<span style={{ marginLeft: 4, color: '#333', fontSize: '0.8rem' }}>
+			<span className="ml-1 text-xs text-gray-800">
 				{sortOrder === 'asc' ? '▲' : '▼'}
 			</span>
 		);
@@ -80,27 +76,11 @@ export default function IngredientList({
 	});
 
 	return (
-		<div
-			style={{
-				backgroundColor: '#fff',
-				borderRadius: '12px',
-				overflow: 'hidden',
-				border: '1px solid #eee',
-				boxShadow: '0 2px 5px rgba(0,0,0,0.02)',
-			}}
-		>
-			<table
-				style={{
-					width: '100%',
-					borderCollapse: 'collapse',
-					fontSize: '0.95rem',
-					color: '#333',
-				}}
-			>
+		<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+			<table className="w-full border-collapse text-sm text-gray-800">
 				<thead>
-					<tr style={{ backgroundColor: '#f3f4f6' }}>
+					<tr className="bg-gray-100/80">
 						{[
-							// 순서 변경: 카테고리 -> 이름 -> 수량 -> ...
 							{ key: 'category', label: '카테고리' },
 							{ key: 'name', label: '이름' },
 							{ key: null, label: '수량' },
@@ -111,15 +91,9 @@ export default function IngredientList({
 							<th
 								key={label}
 								onClick={() => key && handleSort(key as Props['sortKey'])}
-								style={{
-									textAlign: 'center',
-									padding: '0.8rem',
-									fontWeight: 600,
-									cursor: key ? 'pointer' : 'default',
-									userSelect: 'none',
-									color: '#444',
-									borderBottom: '1px solid #eee',
-								}}
+								className={`select-none border-b border-gray-200 p-4 font-semibold text-gray-600 ${
+									key ? 'cursor-pointer hover:bg-gray-200/50' : 'cursor-default'
+								} text-center transition-colors`}
 							>
 								{label}
 								{key && getSortIcon(key as Props['sortKey'])}
@@ -129,7 +103,7 @@ export default function IngredientList({
 				</thead>
 
 				<tbody>
-					{sorted.map((i, index) => {
+					{sorted.map((i) => {
 						const dDay = getDDay(i.expiration);
 						const isExpired = dDay < 0;
 						const isUrgent = dDay >= 0 && dDay <= 3;
@@ -137,22 +111,19 @@ export default function IngredientList({
 						return (
 							<tr
 								key={i.id}
-								style={{
-									borderBottom:
-										index === sorted.length - 1 ? 'none' : '1px solid #eee',
-									transition: 'background-color 0.1s',
-									backgroundColor: isExpired ? '#fff5f5' : 'inherit',
-								}}
+								className={`border-b border-gray-100 last:border-none transition-colors ${
+									isExpired ? 'bg-red-50/60' : 'hover:bg-gray-50'
+								}`}
 							>
 								{/* 1. 카테고리 */}
-								<td style={{ ...cellStyle, color: '#666' }}>
+								<td className="px-2 py-4 text-center font-medium text-gray-500">
 									{i.category?.name}
 								</td>
 
 								{/* 2. 이름 */}
-								<td style={cellStyle}>
+								<td className="px-2 py-4 text-center">
 									<span
-										style={{ fontWeight: 500, cursor: 'pointer' }}
+										className="cursor-pointer font-bold text-gray-900 transition-colors hover:text-blue-600 hover:underline"
 										onClick={() => onView(i)}
 									>
 										{i.name}
@@ -160,52 +131,32 @@ export default function IngredientList({
 								</td>
 
 								{/* 3. 수량 */}
-								<td style={cellStyle}>
-									{i.quantity}{' '}
-									<span style={{ fontSize: '0.85rem', color: '#888' }}>
-										{i.unit}
-									</span>
+								<td className="px-2 py-4 text-center font-medium">
+									{i.quantity}
+									<span className="ml-0.5 text-xs text-gray-400">{i.unit}</span>
 								</td>
 
 								{/* 4. 유통기한 */}
-								<td style={cellStyle}>
+								<td className="px-2 py-4 text-center">
 									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											gap: '6px',
-											color: isExpired || isUrgent ? '#d32f2f' : '#333',
-											fontWeight: isExpired || isUrgent ? 600 : 400,
-										}}
+										className={`flex items-center justify-center gap-1.5 ${
+											isExpired || isUrgent
+												? 'font-bold text-red-700'
+												: 'text-gray-800'
+										}`}
 									>
 										{new Date(i.expiration).toLocaleDateString()}
+
+										{/* 임박 배지 */}
 										{isUrgent && (
-											<span
-												style={{
-													backgroundColor: '#ffebee',
-													color: '#c62828',
-													padding: '2px 6px',
-													borderRadius: '4px',
-													fontSize: '0.75rem',
-													border: '1px solid #ffcdd2',
-													whiteSpace: 'nowrap',
-												}}
-											>
+											<span className="whitespace-nowrap rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 ring-1 ring-inset ring-red-600/20">
 												D-{dDay === 0 ? 'Day' : dDay}
 											</span>
 										)}
+
+										{/* 만료 배지 */}
 										{isExpired && (
-											<span
-												style={{
-													backgroundColor: '#b71c1c',
-													color: '#fff',
-													padding: '2px 6px',
-													borderRadius: '4px',
-													fontSize: '0.75rem',
-													whiteSpace: 'nowrap',
-												}}
-											>
+											<span className="whitespace-nowrap rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
 												만료
 											</span>
 										)}
@@ -213,55 +164,43 @@ export default function IngredientList({
 								</td>
 
 								{/* 5. 구매일 */}
-								<td style={cellStyle}>
+								<td className="px-2 py-4 text-center text-gray-500">
 									{new Date(i.purchasedAt).toLocaleDateString()}
 								</td>
 
 								{/* 6. 관리 버튼들 */}
-								<td style={cellStyle}>
-									<div
-										style={{
-											display: 'flex',
-											justifyContent: 'center',
-											gap: '0.4rem',
-											alignItems: 'center',
-										}}
-									>
-										<button
+								<td className="px-2 py-4 text-center">
+									<div className="flex items-center justify-center gap-1.5">
+										<ActionButton
 											onClick={() => onView(i)}
-											style={actionBtnStyle('#e3f2fd', '#1565c0')}
+											className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
 										>
 											상세
-										</button>
+										</ActionButton>
 
-										<button
+										<ActionButton
 											onClick={() => onEdit(i)}
-											style={actionBtnStyle('#f5f5f5', '#555')}
+											className="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
 										>
 											수정
-										</button>
+										</ActionButton>
 
-										<div
-											style={{
-												width: '1px',
-												height: '1rem',
-												backgroundColor: '#ddd',
-												margin: '0 2px',
-											}}
-										/>
+										{/* 구분선 */}
+										<div className="mx-1 h-3 w-px bg-gray-300" />
 
-										<button
+										<ActionButton
 											onClick={() => onConsume(i.id, 'eaten')}
-											style={actionBtnStyle('#e8f5e9', '#2e7d32')}
+											className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
 										>
 											완료
-										</button>
-										<button
+										</ActionButton>
+
+										<ActionButton
 											onClick={() => onConsume(i.id, 'discarded')}
-											style={actionBtnStyle('#ffebee', '#c62828')}
+											className="bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
 										>
 											폐기
-										</button>
+										</ActionButton>
 									</div>
 								</td>
 							</tr>
@@ -271,7 +210,7 @@ export default function IngredientList({
 						<tr>
 							<td
 								colSpan={6}
-								style={{ textAlign: 'center', padding: '2rem', color: '#999' }}
+								className="py-12 text-center text-gray-400"
 							>
 								등록된 재료가 없습니다.
 							</td>
@@ -283,20 +222,25 @@ export default function IngredientList({
 	);
 }
 
-const cellStyle: React.CSSProperties = {
-	textAlign: 'center',
-	padding: '0.8rem 0.5rem',
-};
-
-const actionBtnStyle = (bg: string, color: string): React.CSSProperties => ({
-	backgroundColor: bg,
-	color: color,
-	border: 'none',
-	padding: '0.4rem 0.6rem',
-	borderRadius: '8px',
-	fontSize: '0.8rem',
-	fontWeight: 600,
-	cursor: 'pointer',
-	transition: 'opacity 0.2s',
-	whiteSpace: 'nowrap',
-});
+// 버튼 컴포넌트 분리
+function ActionButton({
+	onClick,
+	className,
+	children,
+}: {
+	onClick: () => void;
+	className: string;
+	children: React.ReactNode;
+}) {
+	return (
+		<button
+			onClick={(e) => {
+				e.stopPropagation();
+				onClick();
+			}}
+			className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all active:scale-95 whitespace-nowrap ${className}`}
+		>
+			{children}
+		</button>
+	);
+}

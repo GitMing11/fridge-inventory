@@ -1,4 +1,4 @@
-// app / components / ConsumeModal.tsx
+'use client';
 
 import React, { useState } from 'react';
 import { Ingredient } from '../../types';
@@ -29,102 +29,61 @@ export default function ConsumeModal({
 	};
 
 	const statusText = status === 'eaten' ? '완료(섭취)' : '폐기';
-	const btnColor = status === 'eaten' ? '#2e7d32' : '#c62828';
+
+	const confirmBtnColorClass =
+		status === 'eaten'
+			? 'bg-green-700 hover:bg-green-800'
+			: 'bg-red-700 hover:bg-red-800';
 
 	return (
 		<div
 			onClick={onClose}
-			style={{
-				position: 'fixed',
-				top: 0,
-				left: 0,
-				width: '100vw',
-				height: '100vh',
-				backgroundColor: 'rgba(0,0,0,0.5)',
-				display: 'flex',
-				justifyContent: 'center',
-				alignItems: 'center',
-				zIndex: 1200,
-			}}
+			className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity"
 		>
 			<div
 				onClick={(e) => e.stopPropagation()}
-				style={{
-					backgroundColor: '#fff',
-					padding: '2rem',
-					borderRadius: '16px',
-					width: '300px',
-					textAlign: 'center',
-					boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
-				}}
+				className="w-[320px] transform overflow-hidden rounded-2xl bg-white p-8 text-center shadow-2xl transition-all"
 			>
-				<h3 style={{ marginTop: 0, marginBottom: '1.5rem', color: '#333' }}>
+				<h3 className="mb-4 text-xl font-bold text-gray-900">
 					{item.name} {statusText}
 				</h3>
 
-				<p style={{ color: '#666', fontSize: '0.9rem' }}>
-					현재 수량: {item.quantity} {item.unit}
+				<p className="text-sm font-medium text-gray-500">
+					현재 수량: <span className="text-gray-900">{item.quantity}</span>{' '}
+					{item.unit}
 				</p>
 
-				<form onSubmit={handleSubmit}>
-					<div style={{ margin: '1.5rem 0' }}>
-						<label
-							style={{
-								display: 'block',
-								marginBottom: '0.5rem',
-								fontWeight: 600,
-							}}
-						>
+				<form
+					onSubmit={handleSubmit}
+					className="mt-6"
+				>
+					<div className="mb-6">
+						<label className="mb-2 block text-sm font-semibold text-gray-700">
 							얼마나 {status === 'eaten' ? '드셨나요?' : '버리시나요?'}
 						</label>
 						<input
 							type="number"
-							step="any" // 소수점 단위도 가능하게 하려면 설정
+							step="any"
 							max={item.quantity}
 							min="0"
 							value={amount}
 							onChange={(e) => setAmount(Number(e.target.value))}
-							style={{
-								width: '100%',
-								padding: '0.8rem',
-								fontSize: '1rem',
-								border: '1px solid #ddd',
-								borderRadius: '8px',
-								textAlign: 'center',
-							}}
+							className="w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-center text-lg font-medium text-gray-900 focus:border-blue-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100"
 							autoFocus
 						/>
 					</div>
 
-					<div style={{ display: 'flex', gap: '0.5rem' }}>
+					<div className="flex gap-3">
 						<button
 							type="button"
 							onClick={onClose}
-							style={{
-								flex: 1,
-								padding: '0.8rem',
-								border: 'none',
-								backgroundColor: '#f5f5f5',
-								color: '#666',
-								borderRadius: '8px',
-								cursor: 'pointer',
-								fontWeight: 600,
-							}}
+							className="flex-1 rounded-xl bg-gray-100 px-4 py-3 text-sm font-bold text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-800"
 						>
 							취소
 						</button>
 						<button
 							type="submit"
-							style={{
-								flex: 1,
-								padding: '0.8rem',
-								border: 'none',
-								backgroundColor: btnColor,
-								color: '#fff',
-								borderRadius: '8px',
-								cursor: 'pointer',
-								fontWeight: 600,
-							}}
+							className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg ${confirmBtnColorClass}`}
 						>
 							확인
 						</button>

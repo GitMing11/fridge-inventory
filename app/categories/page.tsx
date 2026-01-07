@@ -80,81 +80,30 @@ export default function CategoriesPage() {
 		}
 	};
 
-	// 공통 스타일 정의 (홈/기록 페이지와 통일)
-	const containerStyle: React.CSSProperties = {
-		maxWidth: 1000,
-		margin: '2rem auto',
-		padding: '2.5rem',
-		backgroundColor: '#ffffff',
-		borderRadius: '24px',
-		border: '1px solid #f0f0f0',
-		boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
-		fontFamily:
-			'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-		color: '#333',
-	};
-
-	const titleStyle: React.CSSProperties = {
-		textAlign: 'center',
-		marginBottom: '2rem',
-		color: '#222',
-		fontWeight: 600,
-		fontSize: '1.75rem',
-	};
-
-	const cardStyle: React.CSSProperties = {
-		backgroundColor: '#fff',
-		borderRadius: '12px',
-		padding: '1.5rem',
-		border: '1px solid #eee',
-		boxShadow: '0 2px 5px rgba(0,0,0,0.02)',
-		marginBottom: '1.5rem',
-	};
-
-	const inputStyle: React.CSSProperties = {
-		padding: '0.7rem 1rem',
-		fontSize: '0.95rem',
-		border: '1px solid #ddd',
-		borderRadius: '8px',
-		outline: 'none',
-		width: '100%',
-		boxSizing: 'border-box',
-		transition: 'border-color 0.2s',
-	};
-
-	const buttonBaseStyle: React.CSSProperties = {
-		padding: '0.6rem 1.2rem',
-		border: 'none',
-		borderRadius: '8px',
-		fontWeight: 600,
-		cursor: 'pointer',
-		fontSize: '0.9rem',
-		whiteSpace: 'nowrap',
-		transition: 'background-color 0.2s',
-	};
+	// 공통 입력창 스타일 클래스
+	const inputClass =
+		'w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-base outline-none transition-all focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-100';
 
 	return (
-		<div style={containerStyle}>
-			<h1 style={titleStyle}>카테고리 관리</h1>
+		<div className="mx-auto my-8 max-w-3xl rounded-3xl border border-gray-100 bg-white p-10 shadow-xl">
+			<h1 className="mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
+				카테고리 관리
+			</h1>
 
 			{/* 추가 폼 영역 */}
-			<div style={cardStyle}>
-				<div style={{ display: 'flex', gap: '0.8rem', alignItems: 'center' }}>
+			<div className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+				<div className="flex gap-3">
 					<input
 						type="text"
 						placeholder="새 카테고리 이름 입력"
 						value={newCategoryName}
 						onChange={(e) => setNewCategoryName(e.target.value)}
-						style={inputStyle}
+						className={inputClass}
+						onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
 					/>
 					<button
 						onClick={handleAdd}
-						style={{
-							...buttonBaseStyle,
-							backgroundColor: '#333',
-							color: '#fff',
-							padding: '0.7rem 1.5rem',
-						}}
+						className="whitespace-nowrap rounded-xl bg-gray-900 px-6 py-3 text-sm font-bold text-white transition-all hover:bg-gray-800 active:scale-95"
 					>
 						추가
 					</button>
@@ -162,87 +111,58 @@ export default function CategoriesPage() {
 			</div>
 
 			{/* 목록 영역 */}
-			<div style={{ ...cardStyle, padding: 0, overflow: 'hidden' }}>
-				<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-					{categories.map((cat, index) => (
+			<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+				<ul className="divide-y divide-gray-100">
+					{categories.map((cat) => (
 						<li
 							key={cat.id}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'space-between',
-								padding: '1rem 1.5rem',
-								borderBottom:
-									index === categories.length - 1
-										? 'none'
-										: '1px solid #f0f0f0',
-								backgroundColor: '#fff',
-							}}
+							className="group flex items-center justify-between bg-white px-6 py-4 transition-colors hover:bg-gray-50"
 						>
 							{editingId === cat.id ? (
 								// 수정 모드
-								<div
-									style={{
-										display: 'flex',
-										gap: '0.5rem',
-										flex: 1,
-										width: '100%',
-									}}
-								>
+								<div className="flex w-full items-center gap-2">
 									<input
 										type="text"
 										value={editName}
 										onChange={(e) => setEditName(e.target.value)}
-										style={{ ...inputStyle, flex: 1 }}
+										className={`${inputClass} py-2`}
 										autoFocus
+										onKeyDown={(e) => {
+											if (e.key === 'Enter') handleUpdate(cat.id);
+											if (e.key === 'Escape') cancelEdit();
+										}}
 									/>
-									<button
-										onClick={() => handleUpdate(cat.id)}
-										style={{
-											...buttonBaseStyle,
-											backgroundColor: '#2e7d32',
-											color: '#fff',
-										}}
-									>
-										저장
-									</button>
-									<button
-										onClick={cancelEdit}
-										style={{
-											...buttonBaseStyle,
-											backgroundColor: '#9e9e9e',
-											color: '#fff',
-										}}
-									>
-										취소
-									</button>
+									<div className="flex gap-2">
+										<button
+											onClick={() => handleUpdate(cat.id)}
+											className="rounded-lg bg-green-600 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-green-700"
+										>
+											저장
+										</button>
+										<button
+											onClick={cancelEdit}
+											className="rounded-lg bg-gray-400 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-gray-500"
+										>
+											취소
+										</button>
+									</div>
 								</div>
 							) : (
 								// 보기 모드
 								<>
-									<span
-										style={{ fontSize: '1rem', fontWeight: 500, color: '#333' }}
-									>
+									<span className="text-base font-medium text-gray-700 group-hover:text-gray-900">
 										{cat.name}
 									</span>
-									<div style={{ display: 'flex', gap: '0.5rem' }}>
+									<div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100">
 										<button
 											onClick={() => startEdit(cat)}
-											style={{
-												...buttonBaseStyle,
-												backgroundColor: '#f5f5f5',
-												color: '#555',
-											}}
+											className="rounded-lg bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-600 transition-colors hover:bg-gray-200 hover:text-gray-900"
 										>
 											수정
 										</button>
 										<button
 											onClick={() => handleDelete(cat.id)}
-											style={{
-												...buttonBaseStyle,
-												backgroundColor: '#ffebee',
-												color: '#c62828',
-											}}
+											className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-700"
 										>
 											삭제
 										</button>
@@ -252,7 +172,7 @@ export default function CategoriesPage() {
 						</li>
 					))}
 					{categories.length === 0 && (
-						<li style={{ padding: '2rem', textAlign: 'center', color: '#888' }}>
+						<li className="py-12 text-center text-gray-400">
 							등록된 카테고리가 없습니다.
 						</li>
 					)}

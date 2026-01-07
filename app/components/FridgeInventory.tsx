@@ -1,4 +1,3 @@
-// app/components/FridgeInventory.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -13,7 +12,6 @@ export default function FridgeInventory() {
 	const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 	const [showModal, setShowModal] = useState(false);
 
-	// 수정 중인 아이템과 상세 보기 중인 아이템 상태 관리
 	const [editingItem, setEditingItem] = useState<Ingredient | null>(null);
 	const [viewingItem, setViewingItem] = useState<Ingredient | null>(null);
 
@@ -22,7 +20,6 @@ export default function FridgeInventory() {
 	>('expiration');
 	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
-	// 소비/폐기 처리를 위한 상태 추가
 	const [consumingTarget, setConsumingTarget] = useState<{
 		item: Ingredient;
 		status: 'eaten' | 'discarded';
@@ -96,7 +93,6 @@ export default function FridgeInventory() {
 		);
 	};
 
-	// 필터링 로직
 	const filteredIngredients = ingredients.filter((item) => {
 		const matchesSearch = item.name
 			.toLowerCase()
@@ -107,62 +103,23 @@ export default function FridgeInventory() {
 	});
 
 	return (
-		<div
-			style={{
-				maxWidth: 1000,
-				margin: '2rem auto',
-				padding: '2.5rem',
-				backgroundColor: '#ffffff',
-				borderRadius: '24px',
-				border: '1px solid #f0f0f0',
-				boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
-				fontFamily:
-					'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-				color: '#333',
-			}}
-		>
-			<h1
-				style={{
-					textAlign: 'center',
-					fontSize: '2rem',
-					marginBottom: '2.5rem',
-					fontWeight: 700,
-					color: '#1a1a1a',
-					letterSpacing: '-0.5px',
-				}}
-			>
+		<div className="mx-auto my-8 max-w-5xl rounded-3xl bg-white p-10 font-sans text-gray-800 shadow-xl border border-gray-100">
+			<h1 className="mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
 				냉장고 재고 관리
 			</h1>
 
-			{/* --- [디자인 수정됨] 검색 및 필터 영역 --- */}
-			<div
-				style={{
-					display: 'flex',
-					gap: '12px',
-					marginBottom: '2rem',
-					flexWrap: 'wrap',
-					alignItems: 'center',
-				}}
-			>
-				{/* 검색창 컨테이너 */}
-				<div style={{ position: 'relative', flex: 1, minWidth: '240px' }}>
-					{/* 돋보기 아이콘 (SVG) */}
+			{/* --- 검색 및 필터 영역 --- */}
+			<div className="mb-8 flex flex-wrap items-center gap-3">
+				{/* 검색창 */}
+				<div className="relative flex-1 min-w-[240px]">
 					<svg
-						width="18"
-						height="18"
+						className="absolute left-3.5 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-400"
 						viewBox="0 0 24 24"
 						fill="none"
-						stroke="#888"
+						stroke="currentColor"
 						strokeWidth="2"
 						strokeLinecap="round"
 						strokeLinejoin="round"
-						style={{
-							position: 'absolute',
-							left: '14px',
-							top: '50%',
-							transform: 'translateY(-50%)',
-							pointerEvents: 'none',
-						}}
 					>
 						<circle
 							cx="11"
@@ -181,33 +138,12 @@ export default function FridgeInventory() {
 						placeholder="재료 이름 검색..."
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
-						style={{
-							width: '100%',
-							padding: '0 12px 0 42px', // 아이콘 공간 확보
-							height: '46px',
-							borderRadius: '12px',
-							border: '1px solid #e0e0e0',
-							backgroundColor: '#f9fafb',
-							fontSize: '0.95rem',
-							outline: 'none',
-							transition: 'all 0.2s ease',
-							color: '#333',
-						}}
-						onFocus={(e) => {
-							e.target.style.backgroundColor = '#fff';
-							e.target.style.borderColor = '#333';
-							e.target.style.boxShadow = '0 0 0 3px rgba(0,0,0,0.05)';
-						}}
-						onBlur={(e) => {
-							e.target.style.backgroundColor = '#f9fafb';
-							e.target.style.borderColor = '#e0e0e0';
-							e.target.style.boxShadow = 'none';
-						}}
+						className="h-[46px] w-full rounded-xl border border-gray-200 bg-gray-50 pl-[42px] pr-3 text-base text-gray-800 placeholder-gray-400 outline-none transition-all duration-200 focus:border-gray-800 focus:bg-white focus:ring-4 focus:ring-gray-100"
 					/>
 				</div>
 
 				{/* 카테고리 선택 */}
-				<div style={{ position: 'relative', minWidth: '160px' }}>
+				<div className="relative min-w-[160px]">
 					<select
 						value={selectedCategory}
 						onChange={(e) =>
@@ -215,26 +151,7 @@ export default function FridgeInventory() {
 								e.target.value === 'all' ? 'all' : Number(e.target.value)
 							)
 						}
-						style={{
-							width: '100%',
-							height: '46px',
-							padding: '0 36px 0 16px',
-							borderRadius: '12px',
-							border: '1px solid #e0e0e0',
-							backgroundColor: '#fff',
-							fontSize: '0.95rem',
-							fontWeight: 500,
-							color: '#444',
-							cursor: 'pointer',
-							outline: 'none',
-							appearance: 'none', // 기본 화살표 제거 후 커스텀 화살표 사용 추천 (여기선 심플하게 유지)
-							backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-							backgroundRepeat: 'no-repeat',
-							backgroundPosition: 'right 10px center',
-							backgroundSize: '18px',
-						}}
-						onFocus={(e) => (e.target.style.borderColor = '#333')}
-						onBlur={(e) => (e.target.style.borderColor = '#e0e0e0')}
+						className="h-[46px] w-full appearance-none rounded-xl border border-gray-200 bg-white pl-4 pr-10 text-base font-medium text-gray-700 outline-none transition-colors focus:border-gray-800"
 					>
 						<option value="all">전체 카테고리</option>
 						{categories.map((cat) => (
@@ -246,48 +163,34 @@ export default function FridgeInventory() {
 							</option>
 						))}
 					</select>
+					{/* 화살표 아이콘 */}
+					<div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">
+						<svg
+							width="18"
+							height="18"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+						>
+							<polyline points="6 9 12 15 18 9"></polyline>
+						</svg>
+					</div>
 				</div>
 			</div>
 
-			<div
-				style={{
-					display: 'flex',
-					justifyContent: 'flex-end',
-					marginBottom: '1.5rem',
-				}}
-			>
+			{/* 버튼 영역 */}
+			<div className="mb-6 flex justify-end">
 				<button
 					onClick={() => {
 						setEditingItem(null);
 						setShowModal(true);
 					}}
-					style={{
-						display: 'flex',
-						alignItems: 'center',
-						gap: '6px',
-						padding: '0.75rem 1.4rem',
-						backgroundColor: '#111',
-						color: '#fff',
-						border: 'none',
-						borderRadius: '12px',
-						cursor: 'pointer',
-						fontWeight: 600,
-						fontSize: '0.95rem',
-						boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-						transition: 'all 0.2s',
-					}}
-					onMouseDown={(e) => (e.currentTarget.style.transform = 'scale(0.96)')}
-					onMouseUp={(e) => (e.currentTarget.style.transform = 'scale(1)')}
-					onMouseOver={(e) => {
-						e.currentTarget.style.backgroundColor = '#333';
-						e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.2)';
-					}}
-					onMouseOut={(e) => {
-						e.currentTarget.style.backgroundColor = '#111';
-						e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-					}}
+					className="flex items-center gap-1.5 rounded-xl bg-gray-900 px-6 py-3 text-sm font-semibold text-white shadow-md transition-all hover:bg-gray-800 hover:shadow-lg active:scale-95"
 				>
-					<span style={{ fontSize: '1.1rem', lineHeight: 1 }}>+</span> 재료 추가
+					<span className="text-lg leading-none">+</span> 재료 추가
 				</button>
 			</div>
 
@@ -302,7 +205,7 @@ export default function FridgeInventory() {
 				onView={handleViewClick}
 			/>
 
-			{/* 추가/수정 모달 */}
+			{/* 모달들 */}
 			{showModal && (
 				<IngredientForm
 					categories={categories}
@@ -314,7 +217,6 @@ export default function FridgeInventory() {
 				/>
 			)}
 
-			{/* 상세 정보 모달 */}
 			{viewingItem && (
 				<IngredientDetailModal
 					item={viewingItem}
@@ -322,7 +224,6 @@ export default function FridgeInventory() {
 				/>
 			)}
 
-			{/* 소비/폐기 수량 입력 모달 */}
 			{consumingTarget && (
 				<ConsumeModal
 					item={consumingTarget.item}

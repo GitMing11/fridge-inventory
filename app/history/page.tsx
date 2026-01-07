@@ -39,125 +39,71 @@ export default function HistoryPage() {
 	}, []);
 
 	return (
-		<div
-			style={{
-				maxWidth: 1000,
-				margin: '2rem auto',
-				padding: '2.5rem',
-				backgroundColor: '#ffffff',
-				borderRadius: '24px',
-				border: '1px solid #f0f0f0',
-				boxShadow: '0 10px 30px rgba(0,0,0,0.04)',
-				fontFamily:
-					'-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-				color: '#333',
-			}}
-		>
-			<h1
-				style={{
-					textAlign: 'center',
-					marginBottom: '2rem',
-					color: '#222',
-					fontWeight: 600,
-					fontSize: '1.75rem',
-				}}
-			>
+		<div className="mx-auto my-8 max-w-5xl rounded-3xl border border-gray-100 bg-white p-10 shadow-xl">
+			<h1 className="mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
 				소비 / 폐기 기록
 			</h1>
 
 			{loading ? (
-				<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
+				<div className="py-12 text-center text-gray-500">
 					기록을 불러오는 중입니다...
 				</div>
 			) : error ? (
-				<div style={{ textAlign: 'center', padding: '2rem', color: '#e57373' }}>
-					{error}
-				</div>
+				<div className="py-12 text-center text-red-500">{error}</div>
 			) : history.length === 0 ? (
-				<div
-					style={{
-						textAlign: 'center',
-						padding: '3rem',
-						color: '#888',
-						backgroundColor: '#fff',
-						borderRadius: '12px',
-						border: '1px solid #eee',
-					}}
-				>
-					<p style={{ margin: 0 }}>아직 기록이 없습니다.</p>
+				<div className="rounded-2xl border border-gray-200 bg-white py-12 text-center text-gray-400 shadow-sm">
+					아직 기록이 없습니다.
 				</div>
 			) : (
-				<div
-					style={{
-						backgroundColor: '#fff',
-						borderRadius: '12px',
-						overflow: 'hidden', // 테두리 둥글게 유지
-						border: '1px solid #eee',
-						boxShadow: '0 2px 5px rgba(0,0,0,0.02)',
-					}}
-				>
-					<table
-						style={{
-							width: '100%',
-							borderCollapse: 'collapse',
-							fontSize: '0.95rem',
-							color: '#333',
-						}}
-					>
+				<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+					<table className="w-full border-collapse text-sm text-gray-800">
 						<thead>
-							<tr style={{ backgroundColor: '#f3f4f6' }}>
-								<th style={headerCellStyle}>이름</th>
-								<th style={headerCellStyle}>카테고리</th>
-								<th style={headerCellStyle}>수량</th>
-								<th style={headerCellStyle}>상태</th>
-								<th style={headerCellStyle}>처리일</th>
+							<tr className="bg-gray-100/80">
+								<th className="border-b border-gray-200 p-4 font-semibold text-gray-600">
+									이름
+								</th>
+								<th className="border-b border-gray-200 p-4 font-semibold text-gray-600">
+									카테고리
+								</th>
+								<th className="border-b border-gray-200 p-4 font-semibold text-gray-600">
+									수량
+								</th>
+								<th className="border-b border-gray-200 p-4 font-semibold text-gray-600">
+									상태
+								</th>
+								<th className="border-b border-gray-200 p-4 font-semibold text-gray-600">
+									처리일
+								</th>
 							</tr>
 						</thead>
-						<tbody>
-							{history.map((item, index) => (
+						<tbody className="divide-y divide-gray-100">
+							{history.map((item) => (
 								<tr
 									key={item.id}
-									style={{
-										borderBottom:
-											index === history.length - 1 ? 'none' : '1px solid #eee',
-										transition: 'background-color 0.2s',
-									}}
+									className="transition-colors hover:bg-gray-50"
 								>
-									<td style={cellStyle}>{item.name}</td>
-									<td
-										style={{ ...cellStyle, color: '#666', fontSize: '0.9rem' }}
-									>
+									<td className="p-4 text-center font-medium">{item.name}</td>
+									<td className="p-4 text-center text-gray-500">
 										{item.categoryName}
 									</td>
-									<td style={cellStyle}>
+									<td className="p-4 text-center font-medium">
 										{item.quantity}
-										<span
-											style={{
-												fontSize: '0.85rem',
-												color: '#888',
-												marginLeft: 2,
-											}}
-										>
+										<span className="ml-0.5 text-xs text-gray-400">
 											{item.unit}
 										</span>
 									</td>
-									<td style={cellStyle}>
+									<td className="p-4 text-center">
 										<span
-											style={{
-												padding: '0.25rem 0.6rem',
-												borderRadius: '20px',
-												fontSize: '0.8rem',
-												fontWeight: 600,
-												backgroundColor:
-													item.status === 'eaten' ? '#e8f5e9' : '#ffebee',
-												color: item.status === 'eaten' ? '#2e7d32' : '#c62828',
-												display: 'inline-block',
-											}}
+											className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${
+												item.status === 'eaten'
+													? 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20'
+													: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/20'
+											}`}
 										>
 											{item.status === 'eaten' ? '사용 완료' : '폐기됨'}
 										</span>
 									</td>
-									<td style={{ ...cellStyle, color: '#555' }}>
+									<td className="p-4 text-center text-gray-500">
 										{new Date(item.consumedAt).toLocaleDateString()}
 									</td>
 								</tr>
@@ -169,16 +115,3 @@ export default function HistoryPage() {
 		</div>
 	);
 }
-
-const headerCellStyle: React.CSSProperties = {
-	textAlign: 'center',
-	padding: '0.8rem',
-	fontWeight: 600,
-	color: '#444',
-	fontSize: '0.9rem',
-};
-
-const cellStyle: React.CSSProperties = {
-	textAlign: 'center',
-	padding: '0.8rem 0.5rem',
-};
