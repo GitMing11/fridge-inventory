@@ -81,13 +81,12 @@ export default function CategoriesPage() {
 		}
 	};
 
-	// [Design] 공통 입력창 스타일 (IngredientForm과 동일)
 	const inputClass =
 		'w-full rounded-xl border border-input-border bg-input-bg px-4 py-3 text-sm font-medium text-foreground placeholder-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-primary/50';
 
 	return (
 		<div className="min-h-screen bg-background transition-colors duration-300">
-			<div className="mx-auto max-w-2xl px-4 py-12">
+			<div className="mx-auto max-w-5xl px-4 py-8 md:px-8 md:py-12">
 				{/* 헤더 섹션 */}
 				<div className="mb-10 text-center">
 					<div className="mb-4 flex justify-center">

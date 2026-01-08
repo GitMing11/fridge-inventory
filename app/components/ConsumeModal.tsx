@@ -31,7 +31,6 @@ export default function ConsumeModal({
 	const isEaten = status === 'eaten';
 	const statusText = isEaten ? '완료(섭취)' : '폐기';
 
-	// [Design] 상태별 버튼 색상 (Tailwind 기본 팔레트 사용)
 	const confirmBtnColorClass = isEaten
 		? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
 		: 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20';

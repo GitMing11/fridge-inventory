@@ -45,8 +45,9 @@ export default function IngredientList({
 
 	const getSortIcon = (key: typeof sortKey) => {
 		if (key !== sortKey)
-			// [수정] text-slate-300 -> text-muted/50 (변수 활용)
-			return <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 text-muted/50" />;
+			return (
+				<ArrowUpDown className="ml-1.5 h-3.5 w-3.5 text-muted-foreground/30" />
+			);
 		return sortOrder === 'asc' ? (
 			<ArrowUp className="ml-1.5 h-3.5 w-3.5 text-primary" />
 		) : (
@@ -87,13 +88,11 @@ export default function IngredientList({
 	});
 
 	return (
-		// [수정] border-slate-100 -> border-card-border / bg-white -> bg-card
 		<div className="overflow-hidden rounded-3xl border border-card-border bg-card shadow-sm">
 			<div className="overflow-x-auto">
 				<table className="w-full border-collapse text-sm">
 					<thead>
-						{/* [수정] bg-slate-50 -> bg-input-bg */}
-						<tr className="bg-input-bg/60">
+						<tr className="bg-muted/5 border-b border-card-border">
 							{[
 								{ key: 'category', label: '카테고리' },
 								{ key: 'name', label: '이름' },
@@ -120,7 +119,7 @@ export default function IngredientList({
 						</tr>
 					</thead>
 
-					<tbody className="divide-none">
+					<tbody className="divide-y divide-card-border">
 						{sorted.map((i) => {
 							const dDay = getDDay(i.expiration);
 							const isExpired = dDay < 0;
@@ -129,14 +128,14 @@ export default function IngredientList({
 							return (
 								<tr
 									key={i.id}
-									// [수정] bg-rose-50 -> bg-danger/30
 									className={`group transition-all duration-200 ${
-										isExpired ? 'bg-danger/30' : 'hover:bg-input-bg/50'
+										isExpired
+											? 'bg-danger/10 hover:bg-danger/15'
+											: 'hover:bg-muted/5'
 									}`}
 								>
 									{/* 1. 카테고리 */}
 									<td className="px-4 py-4 text-center">
-										{/* [수정] bg-slate-100 -> bg-input-bg */}
 										<span className="inline-flex items-center rounded-full bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
 											{i.category?.name}
 										</span>
@@ -175,14 +174,16 @@ export default function IngredientList({
 												{new Date(i.expiration).toLocaleDateString()}
 											</span>
 
+											{/* 임박 배지 */}
 											{isUrgent && (
-												<span className="whitespace-nowrap rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-warning-foreground ring-1 ring-inset ring-warning-foreground/20">
+												<span className="whitespace-nowrap rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-warning-foreground ring-1 ring-inset ring-warning-foreground/10">
 													D-{dDay === 0 ? 'Day' : dDay}
 												</span>
 											)}
 
+											{/* 만료 배지 */}
 											{isExpired && (
-												<span className="whitespace-nowrap rounded-md bg-danger px-1.5 py-0.5 text-[10px] font-bold text-danger-foreground ring-1 ring-inset ring-danger-foreground/20">
+												<span className="whitespace-nowrap rounded-md bg-danger px-1.5 py-0.5 text-[10px] font-bold text-danger-foreground ring-1 ring-inset ring-danger-foreground/10">
 													만료
 												</span>
 											)}
@@ -196,40 +197,36 @@ export default function IngredientList({
 
 									{/* 6. 관리 버튼들 */}
 									<td className="px-4 py-4 text-center">
-										<div className="flex items-center justify-center gap-1.5">
-											{/* 상세: Sky Blue (Primary) */}
+										<div className="flex items-center justify-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-100">
 											<ActionButton
 												onClick={() => onView(i)}
-												className="bg-primary/10 text-primary hover:bg-primary/20"
+												className="bg-info text-info-foreground hover:opacity-80"
 												title="상세보기"
 											>
 												<Eye size={14} />
 											</ActionButton>
 
-											{/* 수정: Gray (Muted) */}
 											<ActionButton
 												onClick={() => onEdit(i)}
-												className="bg-input-bg text-muted-foreground hover:bg-card-border hover:text-foreground"
+												className="bg-muted/15 text-muted-foreground hover:bg-muted/25 hover:text-foreground"
 												title="수정"
 											>
 												<Edit2 size={14} />
 											</ActionButton>
 
-											<div className="mx-1 h-3 w-px bg-card-border" />
+											<div className="mx-1 h-4 w-px bg-card-border" />
 
-											{/* 완료: Emerald (Success) */}
 											<ActionButton
 												onClick={() => onConsume(i.id, 'eaten')}
-												className="bg-success/50 text-success-foreground hover:bg-success"
+												className="bg-success text-success-foreground hover:opacity-80"
 												title="소비 완료"
 											>
 												<Check size={14} />
 											</ActionButton>
 
-											{/* 폐기: Rose (Danger) */}
 											<ActionButton
 												onClick={() => onConsume(i.id, 'discarded')}
-												className="bg-danger/50 text-danger-foreground hover:bg-danger"
+												className="bg-danger text-danger-foreground hover:opacity-80"
 												title="폐기"
 											>
 												<Trash2 size={14} />
@@ -239,17 +236,24 @@ export default function IngredientList({
 								</tr>
 							);
 						})}
+
+						{/* Empty State */}
 						{ingredients.length === 0 && (
 							<tr>
 								<td
 									colSpan={6}
-									className="py-20 text-center"
+									className="py-24 text-center"
 								>
 									<div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
-										<div className="flex h-14 w-14 items-center justify-center rounded-full bg-input-bg">
-											<MoreHorizontal className="h-6 w-6 opacity-40" />
+										<div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/10">
+											<MoreHorizontal className="h-8 w-8 opacity-30" />
 										</div>
-										<p>등록된 재료가 없습니다.</p>
+										<p className="text-base font-medium">
+											등록된 재료가 없습니다.
+										</p>
+										<p className="text-xs opacity-70">
+											새로운 재료를 추가하여 냉장고를 채워보세요.
+										</p>
 									</div>
 								</td>
 							</tr>
@@ -280,7 +284,7 @@ function ActionButton({
 				onClick();
 			}}
 			title={title}
-			className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-95 ${className}`}
+			className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-95 shadow-sm hover:shadow-md ${className}`}
 		>
 			{children}
 		</button>

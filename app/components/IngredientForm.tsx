@@ -2,7 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { Category, Ingredient } from '../../types';
-import { X, Plus, Calendar, Package, Tag, ShoppingBag } from 'lucide-react';
+import {
+	X,
+	Plus,
+	Calendar,
+	Package,
+	Tag,
+	ShoppingBag,
+	ChevronDown,
+} from 'lucide-react';
 
 interface Props {
 	categories: Category[];
@@ -120,14 +128,12 @@ export default function IngredientForm({
 		}
 	};
 
-	// [Design] 입력창 공통 스타일: globals 변수 활용
 	const inputClassName =
-		'w-full rounded-xl border border-input-border bg-input-bg px-4 py-3 text-sm font-medium text-foreground placeholder-muted-foreground outline-none transition-all focus:border-primary focus:ring-2 focus:ring-primary/20 hover:border-primary/50';
+		'w-full rounded-2xl border border-input-border bg-input-bg px-4 py-3.5 text-sm font-medium text-foreground placeholder-muted-foreground outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-primary/50';
 
 	return (
 		<div
 			onClick={onClose}
-			// [Design] 오버레이 색상 변수 적용
 			className="fixed inset-0 z-[60] flex items-center justify-center bg-overlay backdrop-blur-sm transition-opacity p-4"
 		>
 			{/* 모달 박스 */}
@@ -136,7 +142,7 @@ export default function IngredientForm({
 				className="relative w-full max-w-[500px] overflow-hidden rounded-3xl bg-card border border-card-border shadow-2xl animate-in fade-in zoom-in-95 duration-200"
 			>
 				{/* 헤더 */}
-				<div className="flex items-center justify-between border-b border-card-border px-8 py-6 bg-background/50 backdrop-blur-sm">
+				<div className="flex items-center justify-between border-b border-card-border px-8 py-6 bg-card/50 backdrop-blur-md">
 					<div>
 						<h2 className="text-xl font-bold text-foreground">
 							{isEditMode ? '재료 수정하기' : '새로운 재료 추가'}
@@ -183,20 +189,9 @@ export default function IngredientForm({
 										</option>
 									))}
 								</select>
-								{/* Select 화살표 커스텀 */}
+								{/* Select 화살표 */}
 								<div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-									<svg
-										width="12"
-										height="12"
-										viewBox="0 0 24 24"
-										fill="none"
-										stroke="currentColor"
-										strokeWidth="2"
-										strokeLinecap="round"
-										strokeLinejoin="round"
-									>
-										<path d="m6 9 6 6 6-6" />
-									</svg>
+									<ChevronDown className="h-3 w-3" />
 								</div>
 							</div>
 
@@ -212,7 +207,7 @@ export default function IngredientForm({
 								<button
 									onClick={handleAddCategory}
 									disabled={!newCategory.trim()}
-									className="flex items-center justify-center rounded-xl bg-input-bg border border-input-border px-3 text-muted-foreground transition-colors hover:bg-card-border hover:text-foreground disabled:opacity-50"
+									className="flex w-12 items-center justify-center rounded-2xl bg-input-bg border border-input-border text-muted-foreground transition-colors hover:bg-card-border hover:text-foreground disabled:opacity-50"
 								>
 									<Plus size={20} />
 								</button>
@@ -309,11 +304,7 @@ export default function IngredientForm({
 					{/* 완료 버튼 */}
 					<button
 						onClick={handleSubmit}
-						className={`mt-4 w-full rounded-xl py-4 text-base font-bold text-primary-foreground shadow-lg transition-all hover:-translate-y-0.5 active:scale-[0.98] ${
-							isEditMode
-								? 'bg-primary hover:bg-primary-hover shadow-primary/20'
-								: 'bg-btn-add text-background hover:opacity-90 shadow-btn-add/20'
-						}`}
+						className="mt-4 w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:bg-primary-hover hover:-translate-y-0.5 active:scale-[0.98]"
 					>
 						{isEditMode ? '변경사항 저장하기' : '냉장고에 채우기'}
 					</button>

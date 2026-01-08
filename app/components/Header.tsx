@@ -15,7 +15,7 @@ export default function Header() {
 		setMounted(true);
 	}, []);
 
-	// 오늘 날짜 포맷팅 (예: 1월 9일 금요일)
+	// 오늘 날짜 포맷팅
 	const today = new Date().toLocaleDateString('ko-KR', {
 		month: 'long',
 		day: 'numeric',
@@ -29,7 +29,6 @@ export default function Header() {
 	];
 
 	return (
-		// [Header] 배경을 'bg-white/80' (Card 색상)으로 설정하여 페이지 배경(Slate-50)과 분리
 		<header className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md transition-colors duration-300 dark:border-slate-800 dark:bg-slate-950/80">
 			<div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
 				{/* 1. Left: 로고 & 날짜 */}
@@ -53,7 +52,6 @@ export default function Header() {
 
 				{/* 2. Center: 네비게이션 (Segmented Control Style) */}
 				<nav className="absolute left-1/2 transform -translate-x-1/2 hidden md:block">
-					{/* [Track] 헤더(흰색)와 대비되는 'Slate-100' 회색 트랙 적용 */}
 					<ul className="flex items-center p-1.5 rounded-full bg-slate-100 border border-slate-200 dark:bg-slate-900 dark:border-slate-800">
 						{navItems.map((item) => {
 							const isActive =

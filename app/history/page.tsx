@@ -41,7 +41,7 @@ export default function HistoryPage() {
 
 	return (
 		<div className="min-h-screen bg-background transition-colors duration-300">
-			<div className="mx-auto max-w-5xl px-4 py-12">
+			<div className="mx-auto max-w-5xl px-4 py-8 md:px-8 md:py-12">
 				{/* 헤더 섹션 */}
 				<div className="mb-10 text-center">
 					<div className="mb-4 flex justify-center">

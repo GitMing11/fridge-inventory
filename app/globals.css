@@ -20,9 +20,8 @@
 
   --color-overlay: var(--overlay);
 
-  --color-btn-add: var(--btn-add);
-  --color-btn-add-hover: var(--btn-add-hover);
-  --color-btn-add-foreground: var(--btn-add-foreground);
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -40,7 +39,7 @@
   /* 배경: 아주 연한 쿨톤(푸른빛) 회색 */
   --background: #f8fafc; /* Slate-50 */
   
-  /* 글자: 완전 검정이 아닌, 깊은 네이비 그레이 */
+  /* 글자: 깊은 네이비 그레이 */
   --foreground: #334155; /* Slate-700 */
 
   /* 카드/컴포넌트 */
@@ -61,18 +60,17 @@
 
   --overlay: rgba(0, 0, 0, 0.4);
 
-  --btn-add: #38bdf8;       /* Sky-400 (산뜻한 하늘색) */
-  --btn-add-hover: #0ea5e9; /* Sky-500 (호버 시 조금 더 진하게) */
-  --btn-add-foreground: #ffffff; /* 흰색 글자 (가독성 좋음) */
+  --info: #e0f2fe;        /* Sky-100 (배경) */
+  --info-foreground: #0284c7; /* Sky-600 (텍스트) */
 
   --success: #d1fae5;       /* Emerald-100 */
   --success-foreground: #065f46; /* Emerald-800 */
   
   --warning: #fef3c7;       /* Amber-100 */
-  --warning-foreground: #92400e; /* Amber-800 */
+  --warning-foreground: #d97706; /* Amber-600 */
   
   --danger: #ffe4e6;        /* Rose-100 */
-  --danger-foreground: #be123c;  /* Rose-700 */
+  --danger-foreground: #e11d48;  /* Rose-600 */
 }
 
 .dark {
@@ -100,18 +98,17 @@
 
   --overlay: rgba(0, 0, 0, 0.7);
 
-  --btn-add: #0ea5e9;       /* Sky-500 */
-  --btn-add-hover: #0284c7; /* Sky-600 */
-  --btn-add-foreground: #ffffff;
+  --info: #0c4a6e;        /* Sky-900 */
+  --info-foreground: #38bdf8; /* Sky-400 */
 
   --success: #064e3b;       /* Emerald-900 */
   --success-foreground: #6ee7b7; /* Emerald-300 */
   
-  --warning: #78350f;       /* Amber-900 */
-  --warning-foreground: #fcd34d; /* Amber-300 */
+  --warning: #451a03;       /* Amber-900 */
+  --warning-foreground: #fbbf24; /* Amber-400 */
   
   --danger: #881337;        /* Rose-900 */
-  --danger-foreground: #fda4af;  /* Rose-300 */
+  --danger-foreground: #fb7185;  /* Rose-400 */
 }
 
 body {

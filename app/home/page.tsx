@@ -8,6 +8,7 @@ import {
 	Plus,
 	Search,
 	Filter,
+	ChevronDown,
 } from 'lucide-react';
 
 import IngredientForm from '../components/IngredientForm';
@@ -31,7 +32,8 @@ export default function HomePage() {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 	const [showModal, setShowModal] = useState(false);
-	const [greeting, setGreeting] = useState('');
+
+	// [수정] 인사말 state 제거
 
 	const [editingItem, setEditingItem] = useState<Ingredient | null>(null);
 	const [viewingItem, setViewingItem] = useState<Ingredient | null>(null);
@@ -53,6 +55,7 @@ export default function HomePage() {
 
 	// --- Effects ---
 	useEffect(() => {
+		// [수정] 인사말 설정 로직 제거
 		fetch('/api/categories')
 			.then((res) => res.json())
 			.then(setCategories);
@@ -119,16 +122,16 @@ export default function HomePage() {
 	};
 
 	return (
-		<div className="min-h-screen bg-background transition-colors duration-300">
-			<main className="flex-1 px-4 py-8 md:px-8 md:py-12 max-w-6xl mx-auto w-full space-y-10">
+		<div className="min-h-screen flex flex-col bg-background transition-colors duration-300">
+			<main className="flex-1 px-4 py-8 md:px-8 md:py-12 max-w-5xl mx-auto w-full space-y-10">
 				{/* 1. Header Section */}
 				<section className="flex flex-col md:flex-row md:items-center justify-between gap-6">
 					<div>
 						<h2 className="text-3xl font-bold tracking-tight text-foreground mb-2">
-							{greeting}
+							냉장고 재고 관리
 						</h2>
 						<p className="text-muted-foreground text-lg">
-							냉장고 속 재료를 스마트하게 관리해보세요.
+							식재료를 효율적으로 관리해보세요.
 						</p>
 					</div>
 					<button
@@ -136,8 +139,7 @@ export default function HomePage() {
 							setEditingItem(null);
 							setShowModal(true);
 						}}
-						// [수정] btn-add 색상 변수 사용
-						className="group flex items-center justify-center gap-2 rounded-2xl bg-btn-add text-btn-add-foreground px-6 py-3.5 text-base font-bold shadow-lg shadow-btn-add/25 transition-all hover:bg-btn-add-hover hover:-translate-y-0.5 active:scale-95"
+						className="group flex items-center justify-center gap-2 rounded-2xl bg-primary text-primary-foreground px-6 py-3.5 text-base font-bold shadow-lg shadow-primary/25 transition-all hover:bg-primary-hover hover:-translate-y-0.5 active:scale-95"
 					>
 						<Plus
 							className="w-5 h-5"
@@ -153,25 +155,24 @@ export default function HomePage() {
 						title="보관 중인 재료"
 						count={totalCount}
 						icon={<Refrigerator className="w-7 h-7" />}
-						theme="sky"
+						theme="info"
 					/>
 					<StatCard
 						title="유통기한 임박"
 						count={expiringCount}
 						icon={<AlertTriangle className="w-7 h-7" />}
-						theme="amber"
+						theme="warning"
 					/>
 					<StatCard
 						title="만료된 재료"
 						count={expiredCount}
 						icon={<XCircle className="w-7 h-7" />}
-						theme="rose"
+						theme="danger"
 					/>
 				</section>
 
 				{/* 3. Controls & List Section */}
 				<section className="space-y-6">
-					{/* Floating Search & Filter Bar */}
 					<div className="flex flex-col md:flex-row gap-4">
 						{/* 검색창 */}
 						<div className="relative grow">
@@ -207,20 +208,9 @@ export default function HomePage() {
 									</option>
 								))}
 							</select>
-							{/* Custom Chevron */}
+
 							<div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-								<svg
-									width="12"
-									height="12"
-									viewBox="0 0 24 24"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-									strokeLinecap="round"
-									strokeLinejoin="round"
-								>
-									<path d="m6 9 6 6 6-6" />
-								</svg>
+								<ChevronDown className="h-3 w-3" />
 							</div>
 						</div>
 					</div>
@@ -286,24 +276,23 @@ function StatCard({
 	title: string;
 	count: number;
 	icon: React.ReactNode;
-	theme: 'sky' | 'amber' | 'rose';
+	theme: 'info' | 'warning' | 'danger';
 }) {
-	// 테마별 색상 매핑
 	const themeStyles = {
-		sky: {
-			text: 'text-foreground',
-			iconBg: 'bg-sky-100/50 dark:bg-sky-900/20',
-			iconColor: 'text-sky-600 dark:text-sky-400',
+		info: {
+			text: 'text-info-foreground',
+			iconBg: 'bg-info/50 dark:bg-info/20',
+			iconColor: 'text-info-foreground',
 		},
-		amber: {
-			text: 'text-amber-600 dark:text-amber-400',
-			iconBg: 'bg-amber-100/50 dark:bg-amber-900/20',
-			iconColor: 'text-amber-600 dark:text-amber-400',
+		warning: {
+			text: 'text-warning-foreground',
+			iconBg: 'bg-warning/50 dark:bg-warning/20',
+			iconColor: 'text-warning-foreground',
 		},
-		rose: {
-			text: 'text-rose-600 dark:text-rose-400',
-			iconBg: 'bg-rose-100/50 dark:bg-rose-900/20',
-			iconColor: 'text-rose-600 dark:text-rose-400',
+		danger: {
+			text: 'text-danger-foreground',
+			iconBg: 'bg-danger/50 dark:bg-danger/20',
+			iconColor: 'text-danger-foreground',
 		},
 	};
 
