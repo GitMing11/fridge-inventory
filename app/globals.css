@@ -1,51 +1,121 @@
 @import "tailwindcss";
 
-:root {
-  /* 기본 배경 및 글자색 */
-  --background: #ffffff;
-  --foreground: #171717;
-
-  /* UI 컴포넌트 색상 변수 정의 */
-  --card: #ffffff;
-  --card-border: #f3f4f6; /* gray-100 */
-  
-  --input-bg: #f9fafb;    /* gray-50 */
-  --input-border: #e5e7eb; /* gray-200 */
-  
-  --primary: #111827;     /* gray-900 (메인 버튼 등) */
-  --primary-hover: #1f2937; /* gray-800 */
-  --primary-foreground: #ffffff; /* 버튼 위 글자색 */
-  
-  --muted: #9ca3af;       /* gray-400 (아이콘, 플레이스홀더) */
-  --muted-foreground: #6b7280; /* gray-500 (보조 텍스트) */
-
-  /* Tailwind 내부 변수 연결 */
+@theme {
+  /* 테마 색상 변수 매핑 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans, sans-serif);
-  --font-mono: var(--font-geist-mono, monospace);
+
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-overlay: var(--overlay);
+
+  --color-btn-add: var(--btn-add);
+  --color-btn-add-hover: var(--btn-add-hover);
+  --color-btn-add-foreground: var(--btn-add-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* [Cool Pastel - Light Mode] */
+  
+  /* 배경: 아주 연한 쿨톤(푸른빛) 회색 */
+  --background: #f8fafc; /* Slate-50 */
+  
+  /* 글자: 완전 검정이 아닌, 깊은 네이비 그레이 */
+  --foreground: #334155; /* Slate-700 */
 
-    /* 다크 모드 대응 색상 (예시) */
-    --card: #171717;
-    --card-border: #262626;
-    --input-bg: #262626;
-    --input-border: #404040;
-    --primary: #ededed;
-    --primary-hover: #d4d4d4;
-    --primary-foreground: #0a0a0a;
-    --muted: #525252;
-    --muted-foreground: #a3a3a3;
-  }
+  /* 카드/컴포넌트 */
+  --card: #ffffff;
+  --card-border: #eff6ff; /* Blue-50 */
+  
+  --input-bg: #f1f5f9;    /* Slate-100 */
+  --input-border: #cbd5e1; /* Slate-300 */
+  
+  /* 메인 포인트: 파스텔 스카이 블루 */
+  --primary: #bae6fd;     /* Sky-200 */
+  --primary-hover: #7dd3fc; /* Sky-300 */
+  --primary-foreground: #64748b; /* Slate-500 (버튼 위 글자) */
+  
+  /* 보조 텍스트 */
+  --muted: #94a3b8;       /* Slate-400 */
+  --muted-foreground: #64748b; /* Slate-500 */
+
+  --overlay: rgba(0, 0, 0, 0.4);
+
+  --btn-add: #38bdf8;       /* Sky-400 (산뜻한 하늘색) */
+  --btn-add-hover: #0ea5e9; /* Sky-500 (호버 시 조금 더 진하게) */
+  --btn-add-foreground: #ffffff; /* 흰색 글자 (가독성 좋음) */
+
+  --success: #d1fae5;       /* Emerald-100 */
+  --success-foreground: #065f46; /* Emerald-800 */
+  
+  --warning: #fef3c7;       /* Amber-100 */
+  --warning-foreground: #92400e; /* Amber-800 */
+  
+  --danger: #ffe4e6;        /* Rose-100 */
+  --danger-foreground: #be123c;  /* Rose-700 */
+}
+
+.dark {
+  /* [Cool Pastel - Dark Mode] */
+
+  /* 배경: 깊은 네이비 */
+  --background: #0f172a; /* Slate-900 */
+  
+  /* 글자: 은은한 쿨톤 화이트 */
+  --foreground: #e2e8f0; /* Slate-200 */
+
+  --card: #1e293b;       /* Slate-800 */
+  --card-border: #334155; /* Slate-700 */
+  
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  
+  /* 다크모드 포인트 */
+  --primary: #38bdf8;     /* Sky-400 */
+  --primary-hover: #0ea5e9; /* Sky-500 */
+  --primary-foreground: #0f172a; /* Slate-900 */
+  
+  --muted: #64748b;
+  --muted-foreground: #94a3b8;
+
+  --overlay: rgba(0, 0, 0, 0.7);
+
+  --btn-add: #0ea5e9;       /* Sky-500 */
+  --btn-add-hover: #0284c7; /* Sky-600 */
+  --btn-add-foreground: #ffffff;
+
+  --success: #064e3b;       /* Emerald-900 */
+  --success-foreground: #6ee7b7; /* Emerald-300 */
+  
+  --warning: #78350f;       /* Amber-900 */
+  --warning-foreground: #fcd34d; /* Amber-300 */
+  
+  --danger: #881337;        /* Rose-900 */
+  --danger-foreground: #fda4af;  /* Rose-300 */
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
 }

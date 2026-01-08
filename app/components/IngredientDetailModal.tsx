@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Category, Ingredient } from '../../types';
+import { Ingredient } from '../../types';
+import { X, Calendar, Tag, Package, Clock, ShoppingBag } from 'lucide-react';
 
 interface Props {
 	item: Ingredient;
@@ -13,12 +14,10 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 	const formatDate = (dateStr: string) => {
 		if (!dateStr) return '-';
 		const date = new Date(dateStr);
-		return date.toLocaleString('ko-KR', {
+		return date.toLocaleDateString('ko-KR', {
 			year: 'numeric',
-			month: '2-digit',
-			day: '2-digit',
-			hour: '2-digit',
-			minute: '2-digit',
+			month: 'long',
+			day: 'numeric',
 		});
 	};
 
@@ -26,128 +25,159 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 	const getDDay = (expiration: string) => {
 		const today = new Date();
 		const exp = new Date(expiration);
-
 		today.setHours(0, 0, 0, 0);
 		exp.setHours(0, 0, 0, 0);
-
 		const diffMs = exp.getTime() - today.getTime();
 		return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 	};
 
 	const dDay = getDDay(item.expiration);
-
 	let dDayText = '';
-	let dDayColorClass = '';
+	let dDayBadgeClass = '';
 
-	// D-Day 텍스트 및 색상 클래스 결정
+	// D-Day 텍스트 및 배지 스타일 결정
 	if (dDay === 0) {
 		dDayText = 'D-Day';
-		dDayColorClass = 'text-red-600'; // 당일: 빨강
+		dDayBadgeClass =
+			'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 ring-1 ring-inset ring-rose-600/20';
 	} else if (dDay > 0) {
 		dDayText = `D-${dDay}`;
-		// 3일 이하 임박: 빨강, 그 외: 초록
-		dDayColorClass = dDay <= 3 ? 'text-red-600' : 'text-green-600';
+		// 3일 이하 임박: 주황, 그 외: 초록 -> 파스텔 톤에 맞게 수정
+		dDayBadgeClass =
+			dDay <= 3
+				? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-1 ring-inset ring-amber-600/20'
+				: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20';
 	} else {
-		dDayText = `만료, D+${Math.abs(dDay)}`;
-		dDayColorClass = 'text-gray-400'; // 만료: 회색
+		dDayText = `만료 (D+${Math.abs(dDay)})`;
+		dDayBadgeClass =
+			'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 ring-1 ring-inset ring-slate-500/20';
 	}
 
 	return (
-		// 배경 오버레이 (z-index 1100 -> z-[55])
 		<div
 			onClick={onClose}
-			className="fixed inset-0 z-[55] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity"
+			className="fixed inset-0 z-[60] flex items-center justify-center bg-overlay backdrop-blur-sm transition-opacity p-4"
 		>
 			{/* 모달 콘텐츠 */}
 			<div
 				onClick={(e) => e.stopPropagation()}
-				className="relative w-[90%] max-w-[450px] transform overflow-hidden rounded-2xl bg-white p-8 shadow-2xl transition-all"
+				className="relative w-full max-w-[450px] overflow-hidden rounded-3xl bg-card border border-card-border shadow-2xl animate-in fade-in zoom-in-95 duration-200"
 			>
-				{/* 닫기 'X' 버튼 */}
-				<button
-					onClick={onClose}
-					className="absolute right-5 top-5 p-1 text-2xl leading-none text-gray-400 transition-colors hover:text-gray-600"
-				>
-					&times;
-				</button>
+				{/* 헤더 (배경색 + 닫기 버튼) */}
+				<div className="relative h-32 bg-input-bg border-b border-card-border">
+					<button
+						onClick={onClose}
+						className="absolute right-5 top-5 rounded-full p-2 bg-card text-muted-foreground transition-colors hover:text-foreground shadow-sm hover:shadow-md"
+					>
+						<X size={20} />
+					</button>
 
-				<h2 className="mb-6 text-center text-2xl font-bold text-gray-900">
-					재료 상세 정보
-				</h2>
-
-				<div className="flex flex-col gap-4">
-					<DetailRow
-						label="이름"
-						value={item.name}
-						bold
-					/>
-					<DetailRow
-						label="카테고리"
-						value={item.category?.name || '-'}
-					/>
-					<DetailRow
-						label="수량"
-						value={`${item.quantity} ${item.unit}`}
-					/>
-					<DetailRow
-						label="유통기한"
-						value={`${formatDate(item.expiration)} (${dDayText})`}
-						valueClassName={dDayColorClass}
-					/>
-					<DetailRow
-						label="구매일"
-						value={formatDate(item.purchasedAt)}
-					/>
-
-					{/* 구분선 */}
-					<div className="my-2 border-t border-gray-100" />
-
-					<DetailRow
-						label="등록일시"
-						value={formatDate(item.createdAt)}
-					/>
-					{item.updatedAt && (
-						<DetailRow
-							label="최근수정"
-							value={formatDate(item.updatedAt)}
-						/>
-					)}
+					{/* 아이콘 및 타이틀 오버랩 효과를 위한 공간 */}
+					<div className="absolute -bottom-10 left-8 flex items-end gap-4">
+						<div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-card border border-card-border shadow-lg text-4xl">
+							{/* 카테고리별 아이콘 매핑이 없다면 기본 이모지 사용 */}
+							🥡
+						</div>
+					</div>
 				</div>
 
-				{/* 하단 닫기 버튼 */}
-				<button
-					onClick={onClose}
-					className="mt-8 w-full rounded-xl bg-gray-900 py-3.5 text-base font-bold text-white shadow-md transition-all hover:bg-gray-800 hover:shadow-lg active:scale-[0.98]"
-				>
-					닫기
-				</button>
+				{/* 본문 내용 */}
+				<div className="pt-14 px-8 pb-8 flex flex-col gap-6">
+					{/* 타이틀 섹션 */}
+					<div>
+						<div className="flex items-center gap-3 mb-1">
+							<h2 className="text-2xl font-bold text-foreground">
+								{item.name}
+							</h2>
+							<span
+								className={`px-2 py-0.5 rounded-md text-xs font-bold ${dDayBadgeClass}`}
+							>
+								{dDayText}
+							</span>
+						</div>
+						<p className="text-sm text-muted-foreground flex items-center gap-1.5">
+							<Tag size={14} />
+							{item.category?.name || '미분류'}
+						</p>
+					</div>
+
+					{/* 상세 정보 그리드 */}
+					<div className="grid grid-cols-2 gap-4">
+						<InfoCard
+							icon={<ShoppingBag size={18} />}
+							label="수량"
+							value={`${item.quantity} ${item.unit}`}
+						/>
+						<InfoCard
+							icon={<Calendar size={18} />}
+							label="유통기한"
+							value={formatDate(item.expiration)}
+							highlight={dDay <= 3 && dDay >= 0} // 임박 시 강조
+						/>
+						<InfoCard
+							icon={<Clock size={18} />}
+							label="구매일"
+							value={formatDate(item.purchasedAt)}
+						/>
+						<InfoCard
+							icon={<Package size={18} />}
+							label="등록일"
+							value={formatDate(item.createdAt)}
+						/>
+					</div>
+
+					{/* 하단 닫기 버튼 */}
+					<button
+						onClick={onClose}
+						className="mt-2 w-full rounded-xl bg-input-bg border border-input-border py-3.5 text-base font-bold text-muted-foreground transition-all hover:bg-card-border hover:text-foreground active:scale-[0.98]"
+					>
+						닫기
+					</button>
+				</div>
 			</div>
 		</div>
 	);
 }
 
-// 상세 정보 한 줄 컴포넌트
-function DetailRow({
+// 정보 카드 컴포넌트
+function InfoCard({
+	icon,
 	label,
 	value,
-	bold = false,
-	valueClassName = 'text-gray-900',
+	highlight = false,
 }: {
+	icon: React.ReactNode;
 	label: string;
 	value: string;
-	bold?: boolean;
-	valueClassName?: string;
+	highlight?: boolean;
 }) {
 	return (
-		<div className="flex items-center">
-			<span className="w-20 text-sm font-semibold text-gray-500">{label}</span>
-			<span
-				className={`flex-1 text-base ${
-					bold ? 'font-bold' : 'font-normal'
-				} ${valueClassName}`}
+		<div
+			className={`p-4 rounded-2xl border transition-colors ${
+				highlight
+					? 'bg-amber-50/50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'
+					: 'bg-input-bg/50 border-input-border'
+			}`}
+		>
+			<div
+				className={`mb-2 ${
+					highlight
+						? 'text-amber-600 dark:text-amber-400'
+						: 'text-muted-foreground'
+				}`}
+			>
+				{icon}
+			</div>
+			<p className="text-xs font-medium text-muted-foreground mb-0.5">
+				{label}
+			</p>
+			<p
+				className={`font-semibold ${
+					highlight ? 'text-amber-700 dark:text-amber-300' : 'text-foreground'
+				}`}
 			>
 				{value}
-			</span>
+			</p>
 		</div>
 	);
 }

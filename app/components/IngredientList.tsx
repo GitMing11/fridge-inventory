@@ -2,6 +2,16 @@
 
 import React from 'react';
 import { Ingredient } from '../../types';
+import {
+	ArrowUpDown,
+	ArrowUp,
+	ArrowDown,
+	MoreHorizontal,
+	Eye,
+	Edit2,
+	Check,
+	Trash2,
+} from 'lucide-react';
 
 interface Props {
 	ingredients: Ingredient[];
@@ -35,11 +45,12 @@ export default function IngredientList({
 
 	const getSortIcon = (key: typeof sortKey) => {
 		if (key !== sortKey)
-			return <span className="ml-1 text-xs text-gray-300">⇅</span>;
-		return (
-			<span className="ml-1 text-xs text-gray-800">
-				{sortOrder === 'asc' ? '▲' : '▼'}
-			</span>
+			// [수정] text-slate-300 -> text-muted/50 (변수 활용)
+			return <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 text-muted/50" />;
+		return sortOrder === 'asc' ? (
+			<ArrowUp className="ml-1.5 h-3.5 w-3.5 text-primary" />
+		) : (
+			<ArrowDown className="ml-1.5 h-3.5 w-3.5 text-primary" />
 		);
 	};
 
@@ -76,161 +87,191 @@ export default function IngredientList({
 	});
 
 	return (
-		<div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-			<table className="w-full border-collapse text-sm text-gray-800">
-				<thead>
-					<tr className="bg-gray-100/80">
-						{[
-							{ key: 'category', label: '카테고리' },
-							{ key: 'name', label: '이름' },
-							{ key: null, label: '수량' },
-							{ key: 'expiration', label: '유통기한' },
-							{ key: 'purchasedAt', label: '구매일' },
-							{ key: null, label: '관리' },
-						].map(({ key, label }) => (
-							<th
-								key={label}
-								onClick={() => key && handleSort(key as Props['sortKey'])}
-								className={`select-none border-b border-gray-200 p-4 font-semibold text-gray-600 ${
-									key ? 'cursor-pointer hover:bg-gray-200/50' : 'cursor-default'
-								} text-center transition-colors`}
-							>
-								{label}
-								{key && getSortIcon(key as Props['sortKey'])}
-							</th>
-						))}
-					</tr>
-				</thead>
-
-				<tbody>
-					{sorted.map((i) => {
-						const dDay = getDDay(i.expiration);
-						const isExpired = dDay < 0;
-						const isUrgent = dDay >= 0 && dDay <= 3;
-
-						return (
-							<tr
-								key={i.id}
-								className={`border-b border-gray-100 last:border-none transition-colors ${
-									isExpired ? 'bg-red-50/60' : 'hover:bg-gray-50'
-								}`}
-							>
-								{/* 1. 카테고리 */}
-								<td className="px-2 py-4 text-center font-medium text-gray-500">
-									{i.category?.name}
-								</td>
-
-								{/* 2. 이름 */}
-								<td className="px-2 py-4 text-center">
-									<span
-										className="cursor-pointer font-bold text-gray-900 transition-colors hover:text-blue-600 hover:underline"
-										onClick={() => onView(i)}
-									>
-										{i.name}
-									</span>
-								</td>
-
-								{/* 3. 수량 */}
-								<td className="px-2 py-4 text-center font-medium">
-									{i.quantity}
-									<span className="ml-0.5 text-xs text-gray-400">{i.unit}</span>
-								</td>
-
-								{/* 4. 유통기한 */}
-								<td className="px-2 py-4 text-center">
-									<div
-										className={`flex items-center justify-center gap-1.5 ${
-											isExpired || isUrgent
-												? 'font-bold text-red-700'
-												: 'text-gray-800'
-										}`}
-									>
-										{new Date(i.expiration).toLocaleDateString()}
-
-										{/* 임박 배지 */}
-										{isUrgent && (
-											<span className="whitespace-nowrap rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700 ring-1 ring-inset ring-red-600/20">
-												D-{dDay === 0 ? 'Day' : dDay}
-											</span>
-										)}
-
-										{/* 만료 배지 */}
-										{isExpired && (
-											<span className="whitespace-nowrap rounded bg-red-700 px-1.5 py-0.5 text-[10px] font-bold text-white shadow-sm">
-												만료
-											</span>
-										)}
+		// [수정] border-slate-100 -> border-card-border / bg-white -> bg-card
+		<div className="overflow-hidden rounded-3xl border border-card-border bg-card shadow-sm">
+			<div className="overflow-x-auto">
+				<table className="w-full border-collapse text-sm">
+					<thead>
+						{/* [수정] bg-slate-50 -> bg-input-bg */}
+						<tr className="bg-input-bg/60">
+							{[
+								{ key: 'category', label: '카테고리' },
+								{ key: 'name', label: '이름' },
+								{ key: null, label: '수량' },
+								{ key: 'expiration', label: '유통기한' },
+								{ key: 'purchasedAt', label: '구매일' },
+								{ key: null, label: '관리' },
+							].map(({ key, label }) => (
+								<th
+									key={label}
+									onClick={() => key && handleSort(key as Props['sortKey'])}
+									className={`whitespace-nowrap px-4 py-5 font-semibold text-muted-foreground transition-colors ${
+										key
+											? 'cursor-pointer hover:text-foreground'
+											: 'cursor-default'
+									} text-center`}
+								>
+									<div className="flex items-center justify-center">
+										{label}
+										{key && getSortIcon(key as Props['sortKey'])}
 									</div>
-								</td>
+								</th>
+							))}
+						</tr>
+					</thead>
 
-								{/* 5. 구매일 */}
-								<td className="px-2 py-4 text-center text-gray-500">
-									{new Date(i.purchasedAt).toLocaleDateString()}
-								</td>
+					<tbody className="divide-none">
+						{sorted.map((i) => {
+							const dDay = getDDay(i.expiration);
+							const isExpired = dDay < 0;
+							const isUrgent = dDay >= 0 && dDay <= 3;
 
-								{/* 6. 관리 버튼들 */}
-								<td className="px-2 py-4 text-center">
-									<div className="flex items-center justify-center gap-1.5">
-										<ActionButton
+							return (
+								<tr
+									key={i.id}
+									// [수정] bg-rose-50 -> bg-danger/30
+									className={`group transition-all duration-200 ${
+										isExpired ? 'bg-danger/30' : 'hover:bg-input-bg/50'
+									}`}
+								>
+									{/* 1. 카테고리 */}
+									<td className="px-4 py-4 text-center">
+										{/* [수정] bg-slate-100 -> bg-input-bg */}
+										<span className="inline-flex items-center rounded-full bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
+											{i.category?.name}
+										</span>
+									</td>
+
+									{/* 2. 이름 */}
+									<td className="px-4 py-4 text-center">
+										<span
+											className="cursor-pointer font-bold text-foreground transition-colors hover:text-primary hover:underline decoration-2 underline-offset-4"
 											onClick={() => onView(i)}
-											className="bg-blue-50 text-blue-700 hover:bg-blue-100 hover:text-blue-800"
 										>
-											상세
-										</ActionButton>
+											{i.name}
+										</span>
+									</td>
 
-										<ActionButton
-											onClick={() => onEdit(i)}
-											className="bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-										>
-											수정
-										</ActionButton>
+									{/* 3. 수량 */}
+									<td className="px-4 py-4 text-center font-medium text-foreground">
+										{i.quantity}
+										<span className="ml-0.5 text-xs text-muted-foreground">
+											{i.unit}
+										</span>
+									</td>
 
-										{/* 구분선 */}
-										<div className="mx-1 h-3 w-px bg-gray-300" />
+									{/* 4. 유통기한 */}
+									<td className="px-4 py-4 text-center">
+										<div className="flex items-center justify-center gap-2">
+											<span
+												className={`${
+													isExpired
+														? 'text-danger-foreground font-bold'
+														: isUrgent
+														? 'text-warning-foreground font-bold'
+														: 'text-muted-foreground'
+												}`}
+											>
+												{new Date(i.expiration).toLocaleDateString()}
+											</span>
 
-										<ActionButton
-											onClick={() => onConsume(i.id, 'eaten')}
-											className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800"
-										>
-											완료
-										</ActionButton>
+											{isUrgent && (
+												<span className="whitespace-nowrap rounded-md bg-warning px-1.5 py-0.5 text-[10px] font-bold text-warning-foreground ring-1 ring-inset ring-warning-foreground/20">
+													D-{dDay === 0 ? 'Day' : dDay}
+												</span>
+											)}
 
-										<ActionButton
-											onClick={() => onConsume(i.id, 'discarded')}
-											className="bg-red-50 text-red-700 hover:bg-red-100 hover:text-red-800"
-										>
-											폐기
-										</ActionButton>
+											{isExpired && (
+												<span className="whitespace-nowrap rounded-md bg-danger px-1.5 py-0.5 text-[10px] font-bold text-danger-foreground ring-1 ring-inset ring-danger-foreground/20">
+													만료
+												</span>
+											)}
+										</div>
+									</td>
+
+									{/* 5. 구매일 */}
+									<td className="px-4 py-4 text-center text-muted-foreground">
+										{new Date(i.purchasedAt).toLocaleDateString()}
+									</td>
+
+									{/* 6. 관리 버튼들 */}
+									<td className="px-4 py-4 text-center">
+										<div className="flex items-center justify-center gap-1.5">
+											{/* 상세: Sky Blue (Primary) */}
+											<ActionButton
+												onClick={() => onView(i)}
+												className="bg-primary/10 text-primary hover:bg-primary/20"
+												title="상세보기"
+											>
+												<Eye size={14} />
+											</ActionButton>
+
+											{/* 수정: Gray (Muted) */}
+											<ActionButton
+												onClick={() => onEdit(i)}
+												className="bg-input-bg text-muted-foreground hover:bg-card-border hover:text-foreground"
+												title="수정"
+											>
+												<Edit2 size={14} />
+											</ActionButton>
+
+											<div className="mx-1 h-3 w-px bg-card-border" />
+
+											{/* 완료: Emerald (Success) */}
+											<ActionButton
+												onClick={() => onConsume(i.id, 'eaten')}
+												className="bg-success/50 text-success-foreground hover:bg-success"
+												title="소비 완료"
+											>
+												<Check size={14} />
+											</ActionButton>
+
+											{/* 폐기: Rose (Danger) */}
+											<ActionButton
+												onClick={() => onConsume(i.id, 'discarded')}
+												className="bg-danger/50 text-danger-foreground hover:bg-danger"
+												title="폐기"
+											>
+												<Trash2 size={14} />
+											</ActionButton>
+										</div>
+									</td>
+								</tr>
+							);
+						})}
+						{ingredients.length === 0 && (
+							<tr>
+								<td
+									colSpan={6}
+									className="py-20 text-center"
+								>
+									<div className="flex flex-col items-center justify-center gap-3 text-muted-foreground">
+										<div className="flex h-14 w-14 items-center justify-center rounded-full bg-input-bg">
+											<MoreHorizontal className="h-6 w-6 opacity-40" />
+										</div>
+										<p>등록된 재료가 없습니다.</p>
 									</div>
 								</td>
 							</tr>
-						);
-					})}
-					{ingredients.length === 0 && (
-						<tr>
-							<td
-								colSpan={6}
-								className="py-12 text-center text-gray-400"
-							>
-								등록된 재료가 없습니다.
-							</td>
-						</tr>
-					)}
-				</tbody>
-			</table>
+						)}
+					</tbody>
+				</table>
+			</div>
 		</div>
 	);
 }
 
-// 버튼 컴포넌트 분리
+// 버튼 컴포넌트
 function ActionButton({
 	onClick,
 	className,
 	children,
+	title,
 }: {
 	onClick: () => void;
 	className: string;
 	children: React.ReactNode;
+	title?: string;
 }) {
 	return (
 		<button
@@ -238,7 +279,8 @@ function ActionButton({
 				e.stopPropagation();
 				onClick();
 			}}
-			className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all active:scale-95 whitespace-nowrap ${className}`}
+			title={title}
+			className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-95 ${className}`}
 		>
 			{children}
 		</button>
