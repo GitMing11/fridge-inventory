@@ -1,9 +1,25 @@
 @import "tailwindcss";
 
 :root {
+  /* 기본 배경 및 글자색 */
   --background: #ffffff;
   --foreground: #171717;
 
+  /* UI 컴포넌트 색상 변수 정의 */
+  --card: #ffffff;
+  --card-border: #f3f4f6; /* gray-100 */
+  
+  --input-bg: #f9fafb;    /* gray-50 */
+  --input-border: #e5e7eb; /* gray-200 */
+  
+  --primary: #111827;     /* gray-900 (메인 버튼 등) */
+  --primary-hover: #1f2937; /* gray-800 */
+  --primary-foreground: #ffffff; /* 버튼 위 글자색 */
+  
+  --muted: #9ca3af;       /* gray-400 (아이콘, 플레이스홀더) */
+  --muted-foreground: #6b7280; /* gray-500 (보조 텍스트) */
+
+  /* Tailwind 내부 변수 연결 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans, sans-serif);
@@ -14,6 +30,17 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* 다크 모드 대응 색상 (예시) */
+    --card: #171717;
+    --card-border: #262626;
+    --input-bg: #262626;
+    --input-border: #404040;
+    --primary: #ededed;
+    --primary-hover: #d4d4d4;
+    --primary-foreground: #0a0a0a;
+    --muted: #525252;
+    --muted-foreground: #a3a3a3;
   }
 }
 

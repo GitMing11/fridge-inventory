@@ -1,9 +1,9 @@
-import FridgeInventory from './components/FridgeInventory';
+import HomePage from './home/page';
 
 export default function Home() {
 	return (
 		<>
-			<FridgeInventory />
+			<HomePage />
 		</>
 	);
 }
