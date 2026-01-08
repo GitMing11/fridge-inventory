@@ -45,7 +45,7 @@ export default function HistoryPage() {
 				{/* 헤더 섹션 */}
 				<div className="mb-10 text-center">
 					<div className="mb-4 flex justify-center">
-						<div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
+						<div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-info text-info-foreground">
 							<History size={32} />
 						</div>
 					</div>
@@ -62,7 +62,7 @@ export default function HistoryPage() {
 						기록을 불러오는 중입니다...
 					</div>
 				) : error ? (
-					<div className="py-20 text-center text-rose-500 font-medium">
+					<div className="py-20 text-center text-danger-solid font-medium">
 						{error}
 					</div>
 				) : history.length === 0 ? (
@@ -125,8 +125,8 @@ export default function HistoryPage() {
 												<span
 													className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
 														item.status === 'eaten'
-															? 'bg-emerald-100 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-900/30 dark:text-emerald-400'
-															: 'bg-rose-100 text-rose-700 ring-rose-600/20 dark:bg-rose-900/30 dark:text-rose-400'
+															? 'bg-success text-success-foreground ring-success-foreground/20'
+															: 'bg-danger text-danger-foreground ring-danger-foreground/20'
 													}`}
 												>
 													{item.status === 'eaten' ? (

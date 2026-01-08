@@ -39,18 +39,18 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 	if (dDay === 0) {
 		dDayText = 'D-Day';
 		dDayBadgeClass =
-			'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 ring-1 ring-inset ring-rose-600/20';
+			'bg-danger text-danger-foreground ring-1 ring-inset ring-danger-foreground/20';
 	} else if (dDay > 0) {
 		dDayText = `D-${dDay}`;
-		// 3일 이하 임박: 주황, 그 외: 초록 -> 파스텔 톤에 맞게 수정
+		// 3일 이하 임박: 주황, 그 외: 초록
 		dDayBadgeClass =
 			dDay <= 3
-				? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 ring-1 ring-inset ring-amber-600/20'
-				: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 ring-1 ring-inset ring-emerald-600/20';
+				? 'bg-warning text-warning-foreground ring-1 ring-inset ring-warning-foreground/20'
+				: 'bg-success text-success-foreground ring-1 ring-inset ring-success-foreground/20';
 	} else {
 		dDayText = `만료 (D+${Math.abs(dDay)})`;
 		dDayBadgeClass =
-			'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 ring-1 ring-inset ring-slate-500/20';
+			'bg-neutral text-neutral-foreground ring-1 ring-inset ring-neutral-foreground/20';
 	}
 
 	return (
@@ -155,15 +155,13 @@ function InfoCard({
 		<div
 			className={`p-4 rounded-2xl border transition-colors ${
 				highlight
-					? 'bg-amber-50/50 border-amber-200 dark:bg-amber-900/20 dark:border-amber-800'
+					? 'bg-highlight-bg border-highlight-border'
 					: 'bg-input-bg/50 border-input-border'
 			}`}
 		>
 			<div
 				className={`mb-2 ${
-					highlight
-						? 'text-amber-600 dark:text-amber-400'
-						: 'text-muted-foreground'
+					highlight ? 'text-highlight-label' : 'text-muted-foreground'
 				}`}
 			>
 				{icon}
@@ -173,7 +171,7 @@ function InfoCard({
 			</p>
 			<p
 				className={`font-semibold ${
-					highlight ? 'text-amber-700 dark:text-amber-300' : 'text-foreground'
+					highlight ? 'text-highlight-value' : 'text-foreground'
 				}`}
 			>
 				{value}

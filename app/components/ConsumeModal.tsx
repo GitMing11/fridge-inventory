@@ -32,8 +32,8 @@ export default function ConsumeModal({
 	const statusText = isEaten ? '완료(섭취)' : '폐기';
 
 	const confirmBtnColorClass = isEaten
-		? 'bg-emerald-500 hover:bg-emerald-600 shadow-emerald-500/20'
-		: 'bg-rose-500 hover:bg-rose-600 shadow-rose-500/20';
+		? 'bg-success-solid hover:bg-success-solid-hover shadow-success-solid/20'
+		: 'bg-danger-solid hover:bg-danger-solid-hover shadow-danger-solid/20';
 
 	return (
 		<div
@@ -47,9 +47,7 @@ export default function ConsumeModal({
 				<div className="mb-4 flex justify-center">
 					<span
 						className={`flex h-16 w-16 items-center justify-center rounded-2xl text-3xl ${
-							isEaten
-								? 'bg-emerald-100 dark:bg-emerald-900/30'
-								: 'bg-rose-100 dark:bg-rose-900/30'
+							isEaten ? 'bg-success' : 'bg-danger'
 						}`}
 					>
 						{isEaten ? '😋' : '🗑️'}

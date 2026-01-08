@@ -90,7 +90,7 @@ export default function CategoriesPage() {
 				{/* 헤더 섹션 */}
 				<div className="mb-10 text-center">
 					<div className="mb-4 flex justify-center">
-						<div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-100 text-sky-600 dark:bg-sky-900/30 dark:text-sky-400">
+						<div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-info text-info-foreground">
 							<FolderOpen size={32} />
 						</div>
 					</div>
@@ -116,7 +116,7 @@ export default function CategoriesPage() {
 						<button
 							onClick={handleAdd}
 							disabled={!newCategoryName.trim()}
-							className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-btn-add px-6 py-3 text-sm font-bold text-btn-add-foreground shadow-lg shadow-btn-add/20 transition-all hover:bg-btn-add-hover hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:bg-btn-add"
+							className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:bg-primary-hover hover:-translate-y-0.5 active:scale-95 disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:bg-primary"
 						>
 							<Plus
 								size={18}
@@ -152,14 +152,14 @@ export default function CategoriesPage() {
 										<div className="flex gap-2">
 											<button
 												onClick={() => handleUpdate(cat.id)}
-												className="rounded-lg bg-emerald-100 p-2 text-emerald-600 transition-colors hover:bg-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:hover:bg-emerald-900/50"
+												className="rounded-lg bg-success p-2 text-success-foreground transition-colors hover:bg-success/80"
 												title="저장"
 											>
 												<Check size={18} />
 											</button>
 											<button
 												onClick={cancelEdit}
-												className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+												className="rounded-lg bg-neutral p-2 text-neutral-foreground transition-colors hover:bg-neutral/80"
 												title="취소"
 											>
 												<X size={18} />
@@ -172,17 +172,18 @@ export default function CategoriesPage() {
 										<span className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
 											{cat.name}
 										</span>
-										<div className="flex gap-2 opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-100">
+										{/* [수정됨] opacity 클래스 제거: 항상 보이도록 설정 */}
+										<div className="flex gap-2">
 											<button
 												onClick={() => startEdit(cat)}
-												className="rounded-lg bg-slate-100 p-2 text-slate-600 transition-colors hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:hover:bg-slate-700"
+												className="rounded-lg bg-neutral p-2 text-neutral-foreground transition-colors hover:bg-neutral/80"
 												title="수정"
 											>
 												<Edit2 size={16} />
 											</button>
 											<button
 												onClick={() => handleDelete(cat.id)}
-												className="rounded-lg bg-rose-50 p-2 text-rose-600 transition-colors hover:bg-rose-100 dark:bg-rose-900/20 dark:text-rose-400 dark:hover:bg-rose-900/40"
+												className="rounded-lg bg-danger p-2 text-danger-foreground transition-colors hover:bg-danger/80"
 												title="삭제"
 											>
 												<Trash2 size={16} />

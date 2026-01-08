@@ -31,6 +31,30 @@
   
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
+
+  /* 추가된 헤더 및 네비게이션 변수 매핑 */
+  --color-header-bg: var(--header-bg);
+  --color-header-border: var(--header-border);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-item-hover-bg: var(--nav-item-hover-bg);
+  
+  --color-text-heading: var(--text-heading);
+  --color-text-brand: var(--text-brand);
+
+  /* 추가된 버튼용 솔리드 컬러 */
+  --color-success-solid: var(--success-solid);
+  --color-success-solid-hover: var(--success-solid-hover);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-solid-hover: var(--danger-solid-hover);
+
+  /* 추가된 중립(Neutral) 및 강조(Highlight) 컬러 */
+  --color-neutral: var(--neutral);
+  --color-neutral-foreground: var(--neutral-foreground);
+
+  --color-highlight-bg: var(--highlight-bg);
+  --color-highlight-border: var(--highlight-border);
+  --color-highlight-label: var(--highlight-label);
+  --color-highlight-value: var(--highlight-value);
 }
 
 :root {
@@ -71,6 +95,31 @@
   
   --danger: #ffe4e6;        /* Rose-100 */
   --danger-foreground: #e11d48;  /* Rose-600 */
+
+  /* 헤더 및 네비게이션 (Light) */
+  --header-bg: #ffffff;     /* White */
+  --header-border: #e2e8f0; /* Slate-200 */
+  --nav-bg: #f1f5f9;        /* Slate-100 */
+  --nav-item-hover-bg: #e2e8f0; /* Slate-200 */
+  
+  /* 텍스트 (Light) */
+  --text-heading: #1e293b;  /* Slate-800 */
+  --text-brand: #0ea5e9;    /* Sky-500 */
+
+  /* 버튼 솔리드 (Light) */
+  --success-solid: #10b981;       /* Emerald-500 */
+  --success-solid-hover: #059669; /* Emerald-600 */
+  --danger-solid: #f43f5e;        /* Rose-500 */
+  --danger-solid-hover: #e11d48;  /* Rose-600 */
+
+  /* 중립 및 강조 (Light) */
+  --neutral: #f1f5f9;             /* Slate-100 */
+  --neutral-foreground: #475569;  /* Slate-600 */
+  
+  --highlight-bg: rgba(255, 251, 235, 0.5); /* Amber-50 (Opacity adjusted) */
+  --highlight-border: #fde68a;    /* Amber-200 */
+  --highlight-label: #d97706;     /* Amber-600 */
+  --highlight-value: #b45309;     /* Amber-700 */
 }
 
 .dark {
@@ -109,6 +158,31 @@
   
   --danger: #881337;        /* Rose-900 */
   --danger-foreground: #fb7185;  /* Rose-400 */
+
+  /* 헤더 및 네비게이션 (Dark) */
+  --header-bg: #020617;     /* Slate-950 */
+  --header-border: #1e293b; /* Slate-800 */
+  --nav-bg: #0f172a;        /* Slate-900 */
+  --nav-item-hover-bg: #1e293b; /* Slate-800 */
+
+  /* 텍스트 (Dark) */
+  --text-heading: #f1f5f9;  /* Slate-100 */
+  --text-brand: #38bdf8;    /* Sky-400 */
+
+  /* 버튼 솔리드 (Dark) */
+  --success-solid: #10b981;       /* Emerald-500 */
+  --success-solid-hover: #059669; /* Emerald-600 */
+  --danger-solid: #f43f5e;        /* Rose-500 */
+  --danger-solid-hover: #e11d48;  /* Rose-600 */
+
+  /* 중립 및 강조 (Dark) */
+  --neutral: #1e293b;             /* Slate-800 */
+  --neutral-foreground: #94a3b8;  /* Slate-400 */
+
+  --highlight-bg: rgba(69, 26, 3, 0.2); /* Amber-900 (Opacity adjusted) */
+  --highlight-border: #92400e;    /* Amber-800 */
+  --highlight-label: #fbbf24;     /* Amber-400 */
+  --highlight-value: #fcd34d;     /* Amber-300 */
 }
 
 body {
