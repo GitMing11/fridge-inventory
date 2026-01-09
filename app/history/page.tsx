@@ -1,7 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { History, Inbox, CheckCircle2, Trash2 } from 'lucide-react';
+import {
+	History,
+	Inbox,
+	CheckCircle2,
+	Trash2,
+	Calendar,
+	ShoppingBag,
+	Tag,
+} from 'lucide-react';
 
 interface HistoryItem {
 	id: number;
@@ -39,6 +47,54 @@ export default function HistoryPage() {
 			});
 	}, []);
 
+	// --- [추가] 모바일용 카드 컴포넌트 ---
+	const MobileHistoryCard = ({ item }: { item: HistoryItem }) => {
+		const isEaten = item.status === 'eaten';
+
+		return (
+			<div className="flex flex-col gap-3 rounded-2xl border border-card-border bg-card p-5 shadow-sm">
+				{/* 상단: 카테고리 & 상태 뱃지 */}
+				<div className="flex items-center justify-between">
+					<div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+						<Tag size={12} />
+						<span className="rounded-lg bg-input-bg px-2 py-0.5">
+							{item.categoryName}
+						</span>
+					</div>
+					<span
+						className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-bold ${
+							isEaten
+								? 'bg-success/10 text-success-foreground'
+								: 'bg-danger/10 text-danger-foreground'
+						}`}
+					>
+						{isEaten ? <CheckCircle2 size={12} /> : <Trash2 size={12} />}
+						{isEaten ? '사용 완료' : '폐기됨'}
+					</span>
+				</div>
+
+				{/* 메인: 이름 & 수량 */}
+				<div className="flex items-center justify-between">
+					<h3 className="text-lg font-bold text-foreground">{item.name}</h3>
+					<div className="flex items-center gap-1.5 text-foreground">
+						<ShoppingBag
+							size={14}
+							className="text-muted-foreground"
+						/>
+						<span className="font-semibold">{item.quantity}</span>
+						<span className="text-sm text-muted-foreground">{item.unit}</span>
+					</div>
+				</div>
+
+				{/* 하단: 날짜 정보 */}
+				<div className="mt-1 flex items-center gap-2 border-t border-card-border pt-3 text-xs text-muted-foreground">
+					<Calendar size={12} />
+					<span>처리일: {new Date(item.consumedAt).toLocaleDateString()}</span>
+				</div>
+			</div>
+		);
+	};
+
 	return (
 		<div className="min-h-screen bg-background transition-colors duration-300">
 			<div className="mx-auto max-w-5xl px-4 py-8 md:px-8 md:py-12">
@@ -57,12 +113,13 @@ export default function HistoryPage() {
 					</p>
 				</div>
 
+				{/* 로딩 및 에러 처리 */}
 				{loading ? (
 					<div className="py-20 text-center text-muted-foreground animate-pulse">
 						기록을 불러오는 중입니다...
 					</div>
 				) : error ? (
-					<div className="py-20 text-center text-danger-solid font-medium">
+					<div className="py-20 text-center font-medium text-danger-solid">
 						{error}
 					</div>
 				) : history.length === 0 ? (
@@ -76,83 +133,86 @@ export default function HistoryPage() {
 						<p>아직 기록이 없습니다.</p>
 					</div>
 				) : (
-					// 리스트 영역
-					<div className="overflow-hidden rounded-3xl border border-card-border bg-card shadow-sm">
-						<div className="overflow-x-auto">
-							<table className="w-full border-collapse text-sm">
-								<thead>
-									<tr className="bg-input-bg/50 border-b border-card-border">
-										{['이름', '카테고리', '수량', '상태', '처리일'].map(
-											(header) => (
-												<th
-													key={header}
-													className="whitespace-nowrap px-4 py-5 font-semibold text-muted-foreground text-center"
-												>
-													{header}
-												</th>
-											)
-										)}
-									</tr>
-								</thead>
-								<tbody className="divide-y divide-card-border">
-									{history.map((item) => (
-										<tr
-											key={item.id}
-											className="transition-colors hover:bg-input-bg/30"
-										>
-											{/* 이름 */}
-											<td className="px-4 py-4 text-center font-bold text-foreground">
-												{item.name}
-											</td>
-
-											{/* 카테고리 */}
-											<td className="px-4 py-4 text-center">
-												<span className="inline-flex items-center rounded-full bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
-													{item.categoryName}
-												</span>
-											</td>
-
-											{/* 수량 */}
-											<td className="px-4 py-4 text-center font-medium text-foreground">
-												{item.quantity}
-												<span className="ml-0.5 text-xs text-muted-foreground">
-													{item.unit}
-												</span>
-											</td>
-
-											{/* 상태 (배지 스타일) */}
-											<td className="px-4 py-4 text-center">
-												<span
-													className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
-														item.status === 'eaten'
-															? 'bg-success text-success-foreground ring-success-foreground/20'
-															: 'bg-danger text-danger-foreground ring-danger-foreground/20'
-													}`}
-												>
-													{item.status === 'eaten' ? (
-														<>
-															<CheckCircle2 size={12} />
-															사용 완료
-														</>
-													) : (
-														<>
-															<Trash2 size={12} />
-															폐기됨
-														</>
-													)}
-												</span>
-											</td>
-
-											{/* 처리일 */}
-											<td className="px-4 py-4 text-center text-muted-foreground">
-												{new Date(item.consumedAt).toLocaleDateString()}
-											</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
+					<>
+						{/* --- 모바일 뷰 (sm 미만에서 보임) --- */}
+						<div className="flex flex-col gap-4 sm:hidden">
+							{history.map((item) => (
+								<MobileHistoryCard
+									key={item.id}
+									item={item}
+								/>
+							))}
 						</div>
-					</div>
+
+						{/* --- PC 뷰 (sm 이상에서 보임) --- */}
+						<div className="hidden overflow-hidden rounded-3xl border border-card-border bg-card shadow-sm sm:block">
+							<div className="overflow-x-auto">
+								<table className="w-full border-collapse text-sm">
+									<thead>
+										<tr className="border-b border-card-border bg-input-bg/50">
+											{['이름', '카테고리', '수량', '상태', '처리일'].map(
+												(header) => (
+													<th
+														key={header}
+														className="whitespace-nowrap px-4 py-5 text-center font-semibold text-muted-foreground"
+													>
+														{header}
+													</th>
+												)
+											)}
+										</tr>
+									</thead>
+									<tbody className="divide-y divide-card-border">
+										{history.map((item) => (
+											<tr
+												key={item.id}
+												className="transition-colors hover:bg-input-bg/30"
+											>
+												<td className="px-4 py-4 text-center font-bold text-foreground">
+													{item.name}
+												</td>
+												<td className="px-4 py-4 text-center">
+													<span className="inline-flex items-center rounded-full bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
+														{item.categoryName}
+													</span>
+												</td>
+												<td className="px-4 py-4 text-center font-medium text-foreground">
+													{item.quantity}
+													<span className="ml-0.5 text-xs text-muted-foreground">
+														{item.unit}
+													</span>
+												</td>
+												<td className="px-4 py-4 text-center">
+													<span
+														className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
+															item.status === 'eaten'
+																? 'bg-success text-success-foreground ring-success-foreground/20'
+																: 'bg-danger text-danger-foreground ring-danger-foreground/20'
+														}`}
+													>
+														{item.status === 'eaten' ? (
+															<>
+																<CheckCircle2 size={12} />
+																사용 완료
+															</>
+														) : (
+															<>
+																<Trash2 size={12} />
+																폐기됨
+															</>
+														)}
+													</span>
+												</td>
+												<td className="px-4 py-4 text-center text-muted-foreground">
+													{new Date(item.consumedAt).toLocaleDateString()}
+												</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</>
 				)}
 			</div>
 		</div>
