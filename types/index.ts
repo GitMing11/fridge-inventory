@@ -17,3 +17,15 @@ export interface Ingredient {
   createdAt: string;
   updatedAt?: string; // 업데이트 날짜는 없을 수도 있음
 }
+
+export interface HistoryItem {
+  id: number;
+  name: string;
+  categoryName: string;
+  quantity: number;
+  unit: string;
+  expiration: string;
+  purchasedAt: string;
+  consumedAt: string;
+  status: 'eaten' | 'discarded';
+}

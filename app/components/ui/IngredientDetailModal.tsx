@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Ingredient } from '../../types';
+import { Ingredient } from '../../../types';
 import { X, Calendar, Tag, Package, Clock, ShoppingBag } from 'lucide-react';
 
 interface Props {
