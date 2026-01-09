@@ -12,6 +12,7 @@ import {
 	Check,
 	Trash2,
 } from 'lucide-react';
+import ActionButton from './ui/ActionButton';
 
 interface Props {
 	ingredients: Ingredient[];
@@ -200,7 +201,7 @@ export default function IngredientList({
 										<div className="flex items-center justify-center gap-1.5 opacity-0 transition-opacity group-hover:opacity-100 sm:opacity-100">
 											<ActionButton
 												onClick={() => onView(i)}
-												className="bg-info text-info-foreground hover:opacity-80"
+												variant="info"
 												title="상세보기"
 											>
 												<Eye size={14} />
@@ -208,7 +209,7 @@ export default function IngredientList({
 
 											<ActionButton
 												onClick={() => onEdit(i)}
-												className="bg-muted/15 text-muted-foreground hover:bg-muted/25 hover:text-foreground"
+												variant="neutral"
 												title="수정"
 											>
 												<Edit2 size={14} />
@@ -218,7 +219,7 @@ export default function IngredientList({
 
 											<ActionButton
 												onClick={() => onConsume(i.id, 'eaten')}
-												className="bg-success text-success-foreground hover:opacity-80"
+												variant="success"
 												title="소비 완료"
 											>
 												<Check size={14} />
@@ -226,7 +227,7 @@ export default function IngredientList({
 
 											<ActionButton
 												onClick={() => onConsume(i.id, 'discarded')}
-												className="bg-danger text-danger-foreground hover:opacity-80"
+												variant="danger"
 												title="폐기"
 											>
 												<Trash2 size={14} />
@@ -262,31 +263,5 @@ export default function IngredientList({
 				</table>
 			</div>
 		</div>
-	);
-}
-
-// 버튼 컴포넌트
-function ActionButton({
-	onClick,
-	className,
-	children,
-	title,
-}: {
-	onClick: () => void;
-	className: string;
-	children: React.ReactNode;
-	title?: string;
-}) {
-	return (
-		<button
-			onClick={(e) => {
-				e.stopPropagation();
-				onClick();
-			}}
-			title={title}
-			className={`flex h-8 w-8 items-center justify-center rounded-xl transition-all active:scale-95 shadow-sm hover:shadow-md ${className}`}
-		>
-			{children}
-		</button>
 	);
 }

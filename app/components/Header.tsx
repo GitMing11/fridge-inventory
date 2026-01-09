@@ -36,7 +36,7 @@ export default function Header() {
 
 	return (
 		<header className="sticky top-0 z-50 w-full border-b border-header-border bg-header-bg/80 backdrop-blur-md transition-colors duration-300">
-			<div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+			<div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-4 sm:px-6">
 				{/* 1. Left: 로고 & 날짜 */}
 				<Link
 					href="/"

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Check, FolderOpen } from 'lucide-react';
+import ActionButton from '../components/ui/ActionButton';
 
 interface Category {
 	id: number;
@@ -150,20 +151,20 @@ export default function CategoriesPage() {
 											}}
 										/>
 										<div className="flex gap-2">
-											<button
+											<ActionButton
 												onClick={() => handleUpdate(cat.id)}
-												className="rounded-lg bg-success p-2 text-success-foreground transition-colors hover:bg-success/80"
+												variant="success"
 												title="저장"
 											>
 												<Check size={18} />
-											</button>
-											<button
+											</ActionButton>
+											<ActionButton
 												onClick={cancelEdit}
-												className="rounded-lg bg-neutral p-2 text-neutral-foreground transition-colors hover:bg-neutral/80"
+												variant="neutral"
 												title="취소"
 											>
 												<X size={18} />
-											</button>
+											</ActionButton>
 										</div>
 									</div>
 								) : (
@@ -172,22 +173,21 @@ export default function CategoriesPage() {
 										<span className="text-base font-medium text-foreground transition-colors group-hover:text-primary">
 											{cat.name}
 										</span>
-										{/* [수정됨] opacity 클래스 제거: 항상 보이도록 설정 */}
 										<div className="flex gap-2">
-											<button
+											<ActionButton
 												onClick={() => startEdit(cat)}
-												className="rounded-lg bg-neutral p-2 text-neutral-foreground transition-colors hover:bg-neutral/80"
+												variant="neutral"
 												title="수정"
 											>
 												<Edit2 size={16} />
-											</button>
-											<button
+											</ActionButton>
+											<ActionButton
 												onClick={() => handleDelete(cat.id)}
-												className="rounded-lg bg-danger p-2 text-danger-foreground transition-colors hover:bg-danger/80"
+												variant="danger"
 												title="삭제"
 											>
 												<Trash2 size={16} />
-											</button>
+											</ActionButton>
 										</div>
 									</>
 								)}
