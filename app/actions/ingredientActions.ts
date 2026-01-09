@@ -12,6 +12,19 @@ interface AddIngredientParams {
   purchasedAt: string | Date;
 }
 
+export async function getIngredientsAction() {
+  try {
+    const ingredients = await prisma.ingredient.findMany({
+      include: { category: true },
+      orderBy: { expiration: 'asc' },
+    });
+    return { success: true, data: ingredients };
+  } catch (error) {
+    console.error('Get Ingredients Error:', error);
+    return { success: false, error: '재료 목록을 불러오지 못했습니다.' };
+  }
+}
+
 export async function addIngredientAction(data: AddIngredientParams) {
   // 1. 유효성 검사
   const { name, categoryId, quantity, unit, expiration, purchasedAt } = data;

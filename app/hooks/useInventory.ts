@@ -1,10 +1,14 @@
 // hooks/useInventory.ts
 import { useState, useEffect } from 'react';
 import { Category, Ingredient } from '../../types';
-import { addIngredientAction, 
+import {
+  getIngredientsAction,
+  addIngredientAction, 
   updateIngredientAction, 
   consumeIngredientAction,
-  bulkConsumeAction } from '../actions/ingredientActions';
+  bulkConsumeAction
+} from '../actions/ingredientActions';
+import { getCategoriesAction } from '../actions/categoryActions';
 import toast from 'react-hot-toast';
 import { IngredientInput } from '../../types';
 
@@ -13,15 +17,37 @@ export function useInventory() {
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 
   // 초기 데이터 로드
-  useEffect(() => {
+useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, ingRes] = await Promise.all([
-          fetch('/api/categories'),
-          fetch('/api/ingredients')
+        // 병렬로 데이터 요청
+        const [catResult, ingResult] = await Promise.all([
+          getCategoriesAction(),
+          getIngredientsAction()
         ]);
-        setCategories(await catRes.json());
-        setIngredients(await ingRes.json());
+
+        // 카테고리 설정
+        if (catResult.success && catResult.data) {
+          setCategories(catResult.data);
+        } else {
+          toast.error(catResult.error || '카테고리 로딩 실패');
+        }
+
+        // 재료 설정
+        if (ingResult.success && ingResult.data) {
+          // DB의 Date 객체를 프론트엔드에서 사용하는 형식(String)으로 변환
+          const formattedIngredients = ingResult.data.map(item => ({
+            ...item,
+            expiration: new Date(item.expiration).toISOString(),
+            purchasedAt: new Date(item.purchasedAt).toISOString(),
+            createdAt: new Date(item.createdAt).toISOString(),
+            updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : undefined,
+          }));
+          setIngredients(formattedIngredients);
+        } else {
+          toast.error(ingResult.error || '재료 로딩 실패');
+        }
+
       } catch (error) {
         console.error('Failed to fetch data', error);
         toast.error('데이터를 불러오는데 실패했습니다.');
