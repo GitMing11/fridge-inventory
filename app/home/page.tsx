@@ -20,10 +20,21 @@ import toast from 'react-hot-toast';
 
 // [Helper] 날짜 차이 계산
 const getDDay = (expiration: string) => {
+	if (!expiration) return 0;
+
+	// '2025-08-17T00:00...' 형태일 경우 'T' 앞부분만 사용
+	const datePart = expiration.includes('T')
+		? expiration.split('T')[0]
+		: expiration;
+
 	const now = new Date();
+	// 오늘 날짜의 0시 0분 0초 (시간 영향 제거)
 	const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-	const [y, m, d] = expiration.split('-').map(Number);
+
+	const [y, m, d] = datePart.split('-').map(Number);
+	// 만료일의 0시 0분 0초
 	const exp = new Date(y, m - 1, d);
+
 	const diffMs = exp.getTime() - today.getTime();
 	return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
@@ -33,8 +44,6 @@ export default function HomePage() {
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [ingredients, setIngredients] = useState<Ingredient[]>([]);
 	const [showModal, setShowModal] = useState(false);
-
-	// [수정] 인사말 state 제거
 
 	const [editingItem, setEditingItem] = useState<Ingredient | null>(null);
 	const [viewingItem, setViewingItem] = useState<Ingredient | null>(null);
@@ -56,7 +65,6 @@ export default function HomePage() {
 
 	// --- Effects ---
 	useEffect(() => {
-		// [수정] 인사말 설정 로직 제거
 		fetch('/api/categories')
 			.then((res) => res.json())
 			.then(setCategories);
