@@ -1,25 +1,192 @@
-@import "tailwindcss/preflight";
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-
+@theme {
+  /* 테마 색상 변수 매핑 */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans, sans-serif);
-  --font-mono: var(--font-geist-mono, monospace);
+
+  --color-card: var(--card);
+  --color-card-border: var(--card-border);
+
+  --color-input-bg: var(--input-bg);
+  --color-input-border: var(--input-border);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-overlay: var(--overlay);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+
+  /* 추가된 헤더 및 네비게이션 변수 매핑 */
+  --color-header-bg: var(--header-bg);
+  --color-header-border: var(--header-border);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-item-hover-bg: var(--nav-item-hover-bg);
+  
+  --color-text-heading: var(--text-heading);
+  --color-text-brand: var(--text-brand);
+
+  /* 추가된 버튼용 솔리드 컬러 */
+  --color-success-solid: var(--success-solid);
+  --color-success-solid-hover: var(--success-solid-hover);
+  --color-danger-solid: var(--danger-solid);
+  --color-danger-solid-hover: var(--danger-solid-hover);
+
+  /* 추가된 중립(Neutral) 및 강조(Highlight) 컬러 */
+  --color-neutral: var(--neutral);
+  --color-neutral-foreground: var(--neutral-foreground);
+
+  --color-highlight-bg: var(--highlight-bg);
+  --color-highlight-border: var(--highlight-border);
+  --color-highlight-label: var(--highlight-label);
+  --color-highlight-value: var(--highlight-value);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* [Cool Pastel - Light Mode] */
+  
+  /* 배경: 아주 연한 쿨톤(푸른빛) 회색 */
+  --background: #f8fafc; /* Slate-50 */
+  
+  /* 글자: 깊은 네이비 그레이 */
+  --foreground: #334155; /* Slate-700 */
+
+  /* 카드/컴포넌트 */
+  --card: #ffffff;
+  --card-border: #eff6ff; /* Blue-50 */
+  
+  --input-bg: #f1f5f9;    /* Slate-100 */
+  --input-border: #cbd5e1; /* Slate-300 */
+  
+  /* 메인 포인트: 파스텔 스카이 블루 */
+  --primary: #bae6fd;     /* Sky-200 */
+  --primary-hover: #7dd3fc; /* Sky-300 */
+  --primary-foreground: #64748b; /* Slate-500 (버튼 위 글자) */
+  
+  /* 보조 텍스트 */
+  --muted: #94a3b8;       /* Slate-400 */
+  --muted-foreground: #64748b; /* Slate-500 */
+
+  --overlay: rgba(0, 0, 0, 0.4);
+
+  --info: #e0f2fe;        /* Sky-100 (배경) */
+  --info-foreground: #0284c7; /* Sky-600 (텍스트) */
+
+  --success: #d1fae5;       /* Emerald-100 */
+  --success-foreground: #065f46; /* Emerald-800 */
+  
+  --warning: #fef3c7;       /* Amber-100 */
+  --warning-foreground: #d97706; /* Amber-600 */
+  
+  --danger: #ffe4e6;        /* Rose-100 */
+  --danger-foreground: #e11d48;  /* Rose-600 */
+
+  /* 헤더 및 네비게이션 (Light) */
+  --header-bg: #ffffff;     /* White */
+  --header-border: #e2e8f0; /* Slate-200 */
+  --nav-bg: #f1f5f9;        /* Slate-100 */
+  --nav-item-hover-bg: #e2e8f0; /* Slate-200 */
+  
+  /* 텍스트 (Light) */
+  --text-heading: #1e293b;  /* Slate-800 */
+  --text-brand: #0ea5e9;    /* Sky-500 */
+
+  /* 버튼 솔리드 (Light) */
+  --success-solid: #10b981;       /* Emerald-500 */
+  --success-solid-hover: #059669; /* Emerald-600 */
+  --danger-solid: #f43f5e;        /* Rose-500 */
+  --danger-solid-hover: #e11d48;  /* Rose-600 */
+
+  /* 중립 및 강조 (Light) */
+  --neutral: #f1f5f9;             /* Slate-100 */
+  --neutral-foreground: #475569;  /* Slate-600 */
+  
+  --highlight-bg: rgba(255, 251, 235, 0.5); /* Amber-50 (Opacity adjusted) */
+  --highlight-border: #fde68a;    /* Amber-200 */
+  --highlight-label: #d97706;     /* Amber-600 */
+  --highlight-value: #b45309;     /* Amber-700 */
+}
+
+.dark {
+  /* [Cool Pastel - Dark Mode] */
+
+  /* 배경: 깊은 네이비 */
+  --background: #0f172a; /* Slate-900 */
+  
+  /* 글자: 은은한 쿨톤 화이트 */
+  --foreground: #e2e8f0; /* Slate-200 */
+
+  --card: #1e293b;       /* Slate-800 */
+  --card-border: #334155; /* Slate-700 */
+  
+  --input-bg: #1e293b;
+  --input-border: #475569;
+  
+  /* 다크모드 포인트 */
+  --primary: #38bdf8;     /* Sky-400 */
+  --primary-hover: #0ea5e9; /* Sky-500 */
+  --primary-foreground: #0f172a; /* Slate-900 */
+  
+  --muted: #64748b;
+  --muted-foreground: #94a3b8;
+
+  --overlay: rgba(0, 0, 0, 0.7);
+
+  --info: #0c4a6e;        /* Sky-900 */
+  --info-foreground: #38bdf8; /* Sky-400 */
+
+  --success: #064e3b;       /* Emerald-900 */
+  --success-foreground: #6ee7b7; /* Emerald-300 */
+  
+  --warning: #451a03;       /* Amber-900 */
+  --warning-foreground: #fbbf24; /* Amber-400 */
+  
+  --danger: #881337;        /* Rose-900 */
+  --danger-foreground: #fb7185;  /* Rose-400 */
+
+  /* 헤더 및 네비게이션 (Dark) */
+  --header-bg: #020617;     /* Slate-950 */
+  --header-border: #1e293b; /* Slate-800 */
+  --nav-bg: #0f172a;        /* Slate-900 */
+  --nav-item-hover-bg: #1e293b; /* Slate-800 */
+
+  /* 텍스트 (Dark) */
+  --text-heading: #f1f5f9;  /* Slate-100 */
+  --text-brand: #38bdf8;    /* Sky-400 */
+
+  /* 버튼 솔리드 (Dark) */
+  --success-solid: #10b981;       /* Emerald-500 */
+  --success-solid-hover: #059669; /* Emerald-600 */
+  --danger-solid: #f43f5e;        /* Rose-500 */
+  --danger-solid-hover: #e11d48;  /* Rose-600 */
+
+  /* 중립 및 강조 (Dark) */
+  --neutral: #1e293b;             /* Slate-800 */
+  --neutral-foreground: #94a3b8;  /* Slate-400 */
+
+  --highlight-bg: rgba(69, 26, 3, 0.2); /* Amber-900 (Opacity adjusted) */
+  --highlight-border: #92400e;    /* Amber-800 */
+  --highlight-label: #fbbf24;     /* Amber-400 */
+  --highlight-value: #fcd34d;     /* Amber-300 */
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
 }
