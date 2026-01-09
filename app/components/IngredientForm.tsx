@@ -1,17 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Category, Ingredient } from '../../types';
-import {
-	X,
-	Plus,
-	Calendar,
-	Package,
-	Tag,
-	ShoppingBag,
-	ChevronDown,
-} from 'lucide-react';
-import toast from 'react-hot-toast';
+import { X, Plus, Calendar, Package, Tag, ShoppingBag } from 'lucide-react';
+import { useIngredientForm } from '../hooks/useIngredientForm';
+import { FormInput, FormLabel, FormSelect } from './ui/FormComponents';
 
 interface Props {
 	categories: Category[];
@@ -22,124 +15,24 @@ interface Props {
 	onClose: () => void;
 }
 
-function getToday(): string {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
-}
-
-function formatDateInput(dateStr: string): string {
-	if (!dateStr) return getToday();
-	return new Date(dateStr).toISOString().split('T')[0];
-}
-
-export default function IngredientForm({
-	categories,
-	setCategories,
-	onAdd,
-	onUpdate,
-	initialData,
-	onClose,
-}: Props) {
-	const [newIngredient, setNewIngredient] = useState({
-		name: '',
-		categoryId: 0,
-		quantity: 0,
-		unit: '',
-		expiration: getToday(),
-		purchasedAt: getToday(),
-	});
-
-	const [newCategory, setNewCategory] = useState('');
+export default function IngredientForm(props: Props) {
+	const { categories, onClose, initialData } = props;
 	const isEditMode = !!initialData;
 
-	useEffect(() => {
-		if (initialData) {
-			setNewIngredient({
-				name: initialData.name,
-				categoryId: initialData.categoryId,
-				quantity: initialData.quantity,
-				unit: initialData.unit,
-				expiration: formatDateInput(initialData.expiration),
-				purchasedAt: formatDateInput(initialData.purchasedAt),
-			});
-		}
-	}, [initialData]);
-
-	const handleAddCategory = async () => {
-		if (!newCategory.trim()) return;
-
-		const res = await fetch('/api/categories', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ name: newCategory.trim() }),
-		});
-
-		if (res.ok) {
-			const created = await res.json();
-			setCategories((prev) => [...prev, created]);
-			setNewIngredient((prev) => ({ ...prev, categoryId: created.id }));
-			setNewCategory('');
-		} else {
-			toast.error('카테고리 추가 실패');
-		}
-	};
-
-	const handleSubmit = async () => {
-		const { name, categoryId, quantity, unit, expiration, purchasedAt } =
-			newIngredient;
-
-		if (!name || !categoryId || !unit || !expiration || !purchasedAt) {
-			toast.error('모든 필드를 채워주세요.');
-			return;
-		}
-
-		try {
-			if (initialData && onUpdate) {
-				const res = await fetch(`/api/ingredients/${initialData.id}`, {
-					method: 'PATCH',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(newIngredient),
-				});
-
-				if (res.ok) {
-					const updated = await res.json();
-					onUpdate(updated);
-					onClose();
-					toast.success('재료가 수정되었습니다!');
-				} else {
-					toast.error('수정 실패');
-				}
-			} else {
-				const res = await fetch('/api/ingredients', {
-					method: 'POST',
-					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(newIngredient),
-				});
-
-				if (res.ok) {
-					const added = await res.json();
-					onAdd(added);
-					onClose();
-					toast.success('새 재료가 추가되었습니다!');
-				} else {
-					toast.error('추가 실패');
-				}
-			}
-		} catch (e) {
-			console.error(e);
-			toast.error('오류가 발생했습니다.');
-		}
-	};
-
-	const inputClassName =
-		'w-full rounded-2xl border border-input-border bg-input-bg px-4 py-3.5 text-sm font-medium text-foreground placeholder-muted-foreground outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10 hover:border-primary/50';
+	const {
+		newIngredient,
+		newCategory,
+		setNewCategory,
+		handleChange,
+		handleAddCategory,
+		handleSubmit,
+	} = useIngredientForm(props);
 
 	return (
 		<div
 			onClick={onClose}
 			className="fixed inset-0 z-[60] flex items-center justify-center bg-overlay backdrop-blur-sm transition-opacity p-4"
 		>
-			{/* 모달 박스 */}
 			<div
 				onClick={(e) => e.stopPropagation()}
 				className="relative w-full max-w-[500px] overflow-hidden rounded-3xl bg-card border border-card-border shadow-2xl animate-in fade-in zoom-in-95 duration-200"
@@ -164,48 +57,29 @@ export default function IngredientForm({
 
 				{/* 폼 영역 */}
 				<div className="flex flex-col gap-6 p-8">
-					{/* 1. 카테고리 섹션 */}
-					<div className="space-y-3">
-						<Label
+					{/* 1. 카테고리 */}
+					<div>
+						<FormLabel
 							icon={<Tag size={16} />}
 							text="카테고리"
 						/>
 						<div className="flex flex-col gap-3 sm:flex-row">
-							<div className="relative flex-1">
-								<select
-									value={newIngredient.categoryId}
-									onChange={(e) =>
-										setNewIngredient({
-											...newIngredient,
-											categoryId: Number(e.target.value),
-										})
-									}
-									className={`${inputClassName} appearance-none cursor-pointer`}
-								>
-									<option value={0}>카테고리 선택</option>
-									{categories.map((c) => (
-										<option
-											key={c.id}
-											value={c.id}
-										>
-											{c.name}
-										</option>
-									))}
-								</select>
-								{/* Select 화살표 */}
-								<div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-									<ChevronDown className="h-3 w-3" />
-								</div>
-							</div>
-
-							{/* 새 카테고리 추가 */}
+							<FormSelect
+								value={newIngredient.categoryId}
+								onChange={(e) =>
+									handleChange('categoryId', Number(e.target.value))
+								}
+								options={categories.map((c) => ({
+									value: c.id,
+									label: c.name,
+								}))}
+								placeholder="카테고리 선택"
+							/>
 							<div className="flex flex-1 gap-2">
-								<input
-									type="text"
+								<FormInput
 									placeholder="새 카테고리"
 									value={newCategory}
 									onChange={(e) => setNewCategory(e.target.value)}
-									className={`${inputClassName} min-w-0`}
 								/>
 								<button
 									onClick={handleAddCategory}
@@ -219,87 +93,65 @@ export default function IngredientForm({
 					</div>
 
 					{/* 2. 이름 */}
-					<div className="space-y-3">
-						<Label
+					<div>
+						<FormLabel
 							icon={<Package size={16} />}
 							text="재료 이름"
 						/>
-						<input
-							type="text"
+						<FormInput
 							placeholder="예: 양파, 우유, 삼겹살"
 							value={newIngredient.name}
-							onChange={(e) =>
-								setNewIngredient({ ...newIngredient, name: e.target.value })
-							}
-							className={inputClassName}
+							onChange={(e) => handleChange('name', e.target.value)}
 						/>
 					</div>
 
-					{/* 3. 수량 및 단위 (가로 배치) */}
+					{/* 3. 수량 및 단위 */}
 					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-3">
-							<Label
+						<div>
+							<FormLabel
 								icon={<ShoppingBag size={16} />}
 								text="수량"
 							/>
-							<input
+							<FormInput
 								type="number"
 								placeholder="0"
 								value={newIngredient.quantity || ''}
 								onChange={(e) =>
-									setNewIngredient({
-										...newIngredient,
-										quantity: Number(e.target.value),
-									})
+									handleChange('quantity', Number(e.target.value))
 								}
-								className={inputClassName}
 							/>
 						</div>
-						<div className="space-y-3">
-							<Label text="단위" />
-							<input
-								type="text"
+						<div>
+							<FormLabel text="단위" />
+							<FormInput
 								placeholder="개, g, ml"
 								value={newIngredient.unit}
-								onChange={(e) =>
-									setNewIngredient({ ...newIngredient, unit: e.target.value })
-								}
-								className={inputClassName}
+								onChange={(e) => handleChange('unit', e.target.value)}
 							/>
 						</div>
 					</div>
 
-					{/* 4. 날짜 정보 (가로 배치) */}
+					{/* 4. 날짜 정보 */}
 					<div className="grid grid-cols-2 gap-4">
-						<div className="space-y-3">
-							<Label
+						<div>
+							<FormLabel
 								icon={<Calendar size={16} />}
 								text="유통기한"
 							/>
-							<input
+							<FormInput
 								type="date"
 								value={newIngredient.expiration}
-								onChange={(e) =>
-									setNewIngredient({
-										...newIngredient,
-										expiration: e.target.value,
-									})
-								}
-								className={`${inputClassName} cursor-pointer`}
+								onChange={(e) => handleChange('expiration', e.target.value)}
+								style={{ cursor: 'pointer' }}
 							/>
 						</div>
-						<div className="space-y-3">
-							<Label text="구매일" />
-							<input
+						<div>
+							<FormLabel text="구매일" />
+							<FormInput
 								type="date"
 								value={newIngredient.purchasedAt}
-								onChange={(e) =>
-									setNewIngredient({
-										...newIngredient,
-										purchasedAt: e.target.value,
-									})
-								}
-								className={`${inputClassName} cursor-pointer`}
+								onChange={(e) => handleChange('purchasedAt', e.target.value)}
+								style={{ cursor: 'pointer' }}
 							/>
 						</div>
 					</div>
@@ -314,15 +166,5 @@ export default function IngredientForm({
 				</div>
 			</div>
 		</div>
-	);
-}
-
-// 라벨 컴포넌트
-function Label({ icon, text }: { icon?: React.ReactNode; text: string }) {
-	return (
-		<label className="flex items-center gap-1.5 text-sm font-semibold text-muted-foreground">
-			{icon}
-			{text}
-		</label>
 	);
 }
