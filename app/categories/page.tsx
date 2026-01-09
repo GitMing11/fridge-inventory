@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Check, FolderOpen } from 'lucide-react';
 import ActionButton from '../components/ui/ActionButton';
+import toast from 'react-hot-toast';
 
 interface Category {
 	id: number;
@@ -38,7 +39,7 @@ export default function CategoriesPage() {
 			setNewCategoryName('');
 			fetchCategories();
 		} else {
-			alert('추가 실패');
+			toast.error('추가 실패');
 		}
 	};
 
@@ -53,7 +54,7 @@ export default function CategoriesPage() {
 			fetchCategories();
 		} else {
 			const errorData = await res.json();
-			alert(errorData.error || '삭제 실패');
+			toast.error(errorData.error || '삭제 실패');
 		}
 	};
 
@@ -78,7 +79,7 @@ export default function CategoriesPage() {
 			setEditingId(null);
 			fetchCategories();
 		} else {
-			alert('수정 실패');
+			toast.error('수정 실패');
 		}
 	};
 

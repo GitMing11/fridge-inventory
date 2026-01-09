@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Ingredient } from '../../types';
+import toast from 'react-hot-toast';
 
 interface Props {
 	item: Ingredient;
@@ -22,9 +23,13 @@ export default function ConsumeModal({
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
 		if (amount <= 0 || amount > item.quantity) {
-			alert('올바른 수량을 입력해주세요.');
+			toast.error('올바른 수량을 입력해주세요.');
 			return;
 		}
+		const message =
+			status === 'eaten' ? '맛있게 드셨나요? 😋' : '폐기되었습니다. 🗑️';
+		toast.success(message);
+
 		onConfirm(amount);
 	};
 
