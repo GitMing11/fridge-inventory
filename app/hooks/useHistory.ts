@@ -1,30 +1,43 @@
 // hooks/useHistory.ts
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { HistoryItem } from '../../types';
+import { getHistoryAction } from '../actions/historyActions';
+import toast from 'react-hot-toast';
 
 export function useHistory() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  
+const fetchHistory = useCallback(async () => {
+    setLoading(true);
+    try {
+      // Server Action 호출
+      const result = await getHistoryAction();
 
-  useEffect(() => {
-    fetch('/api/history')
-      .then((res) => {
-        if (!res.ok) throw new Error('API 호출 실패');
-        return res.json();
-      })
-      .then((data) => {
-        setHistory(data);
-        setError(null);
-      })
-      .catch((e) => {
-        console.error(e);
-        setError('기록을 불러오는 데 실패했습니다.');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      if (result.success && result.data) {
+        // DB의 Date 객체를 프론트엔드용 string으로 변환
+        const formattedHistory: HistoryItem[] = result.data.map((item) => ({
+          ...item,
+          expiration: new Date(item.expiration).toISOString(),
+          purchasedAt: new Date(item.purchasedAt).toISOString(),
+          consumedAt: new Date(item.consumedAt).toISOString(),
+          status: item.status as 'eaten' | 'discarded',
+        }));
+        setHistory(formattedHistory);
+      } else {
+        toast.error(result.error || '히스토리를 불러오지 못했습니다.');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  return { history, loading, error };
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  return { history, loading, refreshHistory: fetchHistory };
 }

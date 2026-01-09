@@ -18,6 +18,15 @@ export interface Ingredient {
   updatedAt?: string; // 업데이트 날짜는 없을 수도 있음
 }
 
+export type IngredientInput = {
+  name: string;
+  categoryId: number;
+  quantity: number;
+  unit: string;
+  expiration: string | Date;  // Date 객체나 문자열 둘 다 허용
+  purchasedAt: string | Date;
+};
+
 export interface HistoryItem {
   id: number;
   name: string;

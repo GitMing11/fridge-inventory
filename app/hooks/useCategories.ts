@@ -1,80 +1,80 @@
 import { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
 import { Category } from '../../types';
+import { 
+  getCategoriesAction, 
+  createCategoryAction, 
+  updateCategoryAction, 
+  deleteCategoryAction 
+} from '../actions/categoryActions';
+import toast from 'react-hot-toast';
 
 export function useCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // 조회
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch('/api/categories');
-      if (res.ok) {
-        const data = await res.json();
-        setCategories(data);
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error('카테고리 목록을 불러오지 못했습니다.');
-    }
-  };
-
+  // 초기 데이터 로드
   useEffect(() => {
+    const fetchCategories = async () => {
+      const result = await getCategoriesAction();
+      if (result.success && result.data) {
+        setCategories(result.data);
+      } else {
+        toast.error(result.error || '카테고리 로딩 실패');
+      }
+      setLoading(false);
+    };
     fetchCategories();
   }, []);
 
-  // 추가
+  // 1. 카테고리 추가
   const addCategory = async (name: string) => {
-    if (!name.trim()) return;
-    const res = await fetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
-
-    if (res.ok) {
-      fetchCategories(); // 목록 갱신
+    const result = await createCategoryAction(name);
+    
+    if (result.success && result.data) {
+      setCategories((prev) => [...prev, result.data as Category]);
+      toast.success('카테고리가 추가되었습니다.');
       return true;
     } else {
-      toast.error('추가 실패');
+      toast.error(result.error || '추가 실패');
       return false;
     }
   };
 
-  // 수정
+  // 2. 카테고리 수정
   const updateCategory = async (id: number, name: string) => {
-    if (!name.trim()) return;
-    const res = await fetch(`/api/categories/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name }),
-    });
+    const result = await updateCategoryAction(id, name);
 
-    if (res.ok) {
-      fetchCategories();
+    if (result.success && result.data) {
+      setCategories((prev) =>
+        prev.map((cat) => (cat.id === id ? (result.data as Category) : cat))
+      );
+      toast.success('카테고리가 수정되었습니다.');
       return true;
     } else {
-      toast.error('수정 실패');
+      toast.error(result.error || '수정 실패');
       return false;
     }
   };
 
-  // 삭제
+  // 3. 카테고리 삭제
   const deleteCategory = async (id: number) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    const res = await fetch(`/api/categories/${id}`, {
-      method: 'DELETE',
-    });
+    const result = await deleteCategoryAction(id);
 
-    if (res.ok) {
-      fetchCategories();
+    if (result.success) {
+      setCategories((prev) => prev.filter((cat) => cat.id !== id));
+      toast.success('카테고리가 삭제되었습니다.');
       return true;
     } else {
-      const errorData = await res.json();
-      toast.error(errorData.error || '삭제 실패');
+      toast.error(result.error || '삭제 실패');
       return false;
     }
   };
 
-  return { categories, addCategory, updateCategory, deleteCategory };
+  return {
+    categories,
+    loading,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+  };
 }
