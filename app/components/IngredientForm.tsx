@@ -1,18 +1,19 @@
 'use client';
 
 import React from 'react';
-import { Category, Ingredient } from '../../types';
+import { Category, Ingredient, IngredientInput } from '../../types';
 import { X, Plus, Calendar, Package, Tag, ShoppingBag } from 'lucide-react';
 import { useIngredientForm } from '../hooks/useIngredientForm';
 import { FormInput, FormLabel, FormSelect } from './ui/FormComponents';
 
 interface Props {
-	categories: Category[];
-	setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
-	onAdd: (newItem: Ingredient) => void;
-	onUpdate?: (updatedItem: Ingredient) => void;
+	isOpen: boolean;
 	initialData?: Ingredient | null;
+	onAdd: (newItem: IngredientInput) => Promise<boolean>;
+	onUpdate?: (updatedItem: Ingredient) => Promise<boolean>;
 	onClose: () => void;
+	setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
+	categories: Category[];
 }
 
 export default function IngredientForm(props: Props) {

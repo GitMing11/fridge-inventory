@@ -1,13 +1,14 @@
 // app/hooks/useIngredientForm.ts
 import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
-import { Category, Ingredient } from '../../types';
+import { Category, Ingredient, IngredientInput } from '../../types';
 import { getToday, formatDateInput } from '../utils/dateUtils';
+import { createCategoryAction } from '../actions/categoryActions';
 
 interface UseIngredientFormProps {
   initialData?: Ingredient | null;
-  onAdd: (newItem: Ingredient) => void;
-  onUpdate?: (updatedItem: Ingredient) => void;
+  onAdd: (newItem: IngredientInput) => Promise<boolean>;
+  onUpdate?: (updatedItem: Ingredient) => Promise<boolean>;
   onClose: () => void;
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
 }
@@ -54,22 +55,18 @@ export function useIngredientForm({
     if (!newCategory.trim()) return;
 
     try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newCategory.trim() }),
-      });
+      const result = await createCategoryAction(newCategory.trim());
 
-      if (res.ok) {
-        const created = await res.json();
-        setCategories((prev) => [...prev, created]);
-        handleChange('categoryId', created.id);
+      if (result.success && result.data) {
+        setCategories((prev) => [...prev, result.data as Category]);
+        handleChange('categoryId', result.data.id); 
         setNewCategory('');
         toast.success('카테고리가 추가되었습니다.');
       } else {
-        toast.error('카테고리 추가 실패');
+        toast.error(result.error || '카테고리 추가 실패');
       }
     } catch (e) {
+      console.error(e);
       toast.error('오류가 발생했습니다.');
     }
   };
@@ -84,37 +81,38 @@ export function useIngredientForm({
     }
 
     try {
-      if (initialData && onUpdate) {
-        // 수정
-        const res = await fetch(`/api/ingredients/${initialData.id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newIngredient),
-        });
+      let success = false;
 
-        if (res.ok) {
-          const updated = await res.json();
-          onUpdate(updated);
-          onClose();
-          toast.success('재료가 수정되었습니다!');
-        } else {
-          toast.error('수정 실패');
+      if (initialData && onUpdate) {
+        // 부모(useInventory)에서 받은 onUpdate 함수 호출
+        // 기존 데이터를 기반으로 ID와 업데이트된 필드를 합침
+        const updatedItem: Ingredient = {
+          ...initialData,
+          ...newIngredient,
+          categoryId: Number(categoryId),
+          quantity: Number(quantity),
+        };
+        
+        success = await onUpdate(updatedItem);
+        if (success) {
+           toast.success('재료가 수정되었습니다!');
+           onClose();
         }
       } else {
-        // 추가
-        const res = await fetch('/api/ingredients', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newIngredient),
-        });
+        // 부모(useInventory)에서 받은 onAdd 함수 호출
+        const newItem: IngredientInput = {
+          name,
+          categoryId: Number(categoryId),
+          quantity: Number(quantity),
+          unit,
+          expiration,
+          purchasedAt,
+        };
 
-        if (res.ok) {
-          const added = await res.json();
-          onAdd(added);
-          onClose();
-          toast.success('새 재료가 추가되었습니다!');
-        } else {
-          toast.error('추가 실패');
+        success = await onAdd(newItem);
+        if (success) {
+           toast.success('새 재료가 추가되었습니다!');
+           onClose();
         }
       }
     } catch (e) {
