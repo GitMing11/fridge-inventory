@@ -11,6 +11,7 @@ import {
 	ShoppingBag,
 	ChevronDown,
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 interface Props {
 	categories: Category[];
@@ -79,7 +80,7 @@ export default function IngredientForm({
 			setNewIngredient((prev) => ({ ...prev, categoryId: created.id }));
 			setNewCategory('');
 		} else {
-			alert('카테고리 추가 실패');
+			toast.error('카테고리 추가 실패');
 		}
 	};
 
@@ -88,7 +89,7 @@ export default function IngredientForm({
 			newIngredient;
 
 		if (!name || !categoryId || !unit || !expiration || !purchasedAt) {
-			alert('모든 필드를 채워주세요.');
+			toast.error('모든 필드를 채워주세요.');
 			return;
 		}
 
@@ -104,8 +105,9 @@ export default function IngredientForm({
 					const updated = await res.json();
 					onUpdate(updated);
 					onClose();
+					toast.success('재료가 수정되었습니다!');
 				} else {
-					alert('수정 실패');
+					toast.error('수정 실패');
 				}
 			} else {
 				const res = await fetch('/api/ingredients', {
@@ -118,13 +120,14 @@ export default function IngredientForm({
 					const added = await res.json();
 					onAdd(added);
 					onClose();
+					toast.success('새 재료가 추가되었습니다!');
 				} else {
-					alert('추가 실패');
+					toast.error('추가 실패');
 				}
 			}
 		} catch (e) {
 			console.error(e);
-			alert('오류가 발생했습니다.');
+			toast.error('오류가 발생했습니다.');
 		}
 	};
 

@@ -55,6 +55,18 @@
   --color-highlight-border: var(--highlight-border);
   --color-highlight-label: var(--highlight-label);
   --color-highlight-value: var(--highlight-value);
+  
+  /* --- Toast --- */
+  --color-toast-bg: var(--toast-bg);
+  --color-toast-foreground: var(--toast-foreground);
+
+  --color-toast-success-bg: var(--toast-success-bg);
+  --color-toast-success-foreground: var(--toast-success-foreground);
+  --color-toast-success-border: var(--toast-success-border);
+
+  --color-toast-error-bg: var(--toast-error-bg);
+  --color-toast-error-foreground: var(--toast-error-foreground);
+  --color-toast-error-border: var(--toast-error-border);
 }
 
 :root {
@@ -120,6 +132,18 @@
   --highlight-border: #fde68a;    /* Amber-200 */
   --highlight-label: #d97706;     /* Amber-600 */
   --highlight-value: #b45309;     /* Amber-700 */
+
+  /* Toast */
+  --toast-bg: var(--card);
+  --toast-foreground: var(--foreground);
+
+  --toast-success-bg: var(--success);
+  --toast-success-foreground: var(--success-foreground);
+  --toast-success-border: var(--success);
+
+  --toast-error-bg: var(--danger);
+  --toast-error-foreground: var(--danger-foreground);
+  --toast-error-border: var(--danger);
 }
 
 .dark {
