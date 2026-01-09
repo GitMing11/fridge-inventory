@@ -16,6 +16,7 @@ import IngredientList from '../components/IngredientList';
 import IngredientDetailModal from '../components/IngredientDetailModal';
 import { Category, Ingredient } from '../../types';
 import ConsumeModal from '../components/ConsumeModal';
+import toast from 'react-hot-toast';
 
 // [Helper] 날짜 차이 계산
 const getDDay = (expiration: string) => {
@@ -102,7 +103,34 @@ export default function HomePage() {
 			}
 			setConsumingTarget(null);
 		} else {
-			alert('처리 실패');
+			toast.error('처리 실패');
+		}
+	};
+
+	const handleBulkConsume = async (
+		ids: number[],
+		status: 'eaten' | 'discarded'
+	) => {
+		try {
+			const res = await fetch('/api/ingredients/bulk-consume', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ ids, status }),
+			});
+
+			if (res.ok) {
+				// 선택된 재료들을 목록에서 제거 (일괄 처리는 전량 소모로 가정)
+				setIngredients((prev) => prev.filter((i) => !ids.includes(i.id)));
+
+				const actionText = status === 'eaten' ? '소비' : '폐기';
+				toast.success(`${ids.length}개의 재료가 ${actionText}되었습니다.`);
+			} else {
+				const errorData = await res.json();
+				toast.error(errorData.error || '일괄 처리에 실패했습니다.');
+			}
+		} catch (e) {
+			console.error(e);
+			toast.error('서버 통신 오류가 발생했습니다.');
 		}
 	};
 
@@ -228,6 +256,7 @@ export default function HomePage() {
 							setShowModal(true);
 						}}
 						onView={setViewingItem}
+						onBulkConsume={handleBulkConsume}
 					/>
 				</section>
 			</main>
