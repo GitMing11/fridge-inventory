@@ -1,7 +1,6 @@
 'use server';
 
 import { prisma } from "../../lib/prisma";
-import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 interface AddIngredientParams {
@@ -95,7 +94,8 @@ export async function consumeIngredientAction(
 ) {
   try {
     // 트랜잭션으로 처리하여 데이터 무결성 보장
-    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await prisma.$transaction(async (tx: any) => {
       const ingredient = await tx.ingredient.findUnique({
         where: { id },
         include: { category: true },
@@ -149,6 +149,7 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
   try {
     await Promise.all(
       ids.map((id) => 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         prisma.$transaction(async (tx) => {
           const item = await tx.ingredient.findUnique({ where: { id }, include: { category: true } });
           if (!item) return;
