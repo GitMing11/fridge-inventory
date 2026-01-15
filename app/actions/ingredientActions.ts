@@ -61,7 +61,7 @@ export async function addIngredientAction(data: AddIngredientParams) {
 }
 
 // --- 1. 재료 수정 (Update) ---
-export async function updateIngredientAction(id: number, data: any) {
+export async function updateIngredientAction(id: number, data: AddIngredientParams) {
   const { name, categoryId, quantity, unit, expiration, purchasedAt } = data;
 
   try {
@@ -136,9 +136,10 @@ export async function consumeIngredientAction(
 
     revalidatePath('/');
     return { success: true, remaining: result.remaining };
-  } catch (error: any) {
+  } catch (error: unknown) { 
     console.error('Consume Error:', error);
-    return { success: false, error: error.message || '처리 실패' };
+    const errorMessage = error instanceof Error ? error.message : '처리 실패';
+    return { success: false, error: errorMessage };
   }
 }
 
