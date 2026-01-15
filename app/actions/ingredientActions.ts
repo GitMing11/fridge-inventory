@@ -1,6 +1,7 @@
 'use server';
 
 import { prisma } from "../../lib/prisma";
+import { Prisma } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
 interface AddIngredientParams {
@@ -94,7 +95,7 @@ export async function consumeIngredientAction(
 ) {
   try {
     // 트랜잭션으로 처리하여 데이터 무결성 보장
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const ingredient = await tx.ingredient.findUnique({
         where: { id },
         include: { category: true },
