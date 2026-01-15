@@ -150,7 +150,7 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
     await Promise.all(
       ids.map((id) => 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        prisma.$transaction(async (tx) => {
+        prisma.$transaction(async (tx: any) => {
           const item = await tx.ingredient.findUnique({ where: { id }, include: { category: true } });
           if (!item) return;
 
