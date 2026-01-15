@@ -4,6 +4,18 @@ import { HistoryItem } from '../../types';
 import { getHistoryAction } from '../actions/historyActions';
 import toast from 'react-hot-toast';
 
+interface DbHistoryItem {
+  id: number;
+  name: string;
+  categoryName: string;
+  quantity: number;
+  unit: string;
+  expiration: Date;
+  purchasedAt: Date;
+  consumedAt: Date;
+  status: string;
+}
+
 export function useHistory() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,8 +29,8 @@ const fetchHistory = useCallback(async () => {
       const result = await getHistoryAction();
 
       if (result.success && result.data) {
-        // DB의 Date 객체를 프론트엔드용 string으로 변환
-        const formattedHistory: HistoryItem[] = result.data.map((item) => ({
+        const dbData = result.data as DbHistoryItem[];
+        const formattedHistory: HistoryItem[] = dbData.map((item) => ({
           ...item,
           expiration: new Date(item.expiration).toISOString(),
           purchasedAt: new Date(item.purchasedAt).toISOString(),
