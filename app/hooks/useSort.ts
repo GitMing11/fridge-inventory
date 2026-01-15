@@ -1,6 +1,7 @@
 // app/hooks/useSort.ts
 import { useState, useMemo } from 'react';
 
+
 type SortOrder = 'asc' | 'desc';
 
 export function useSort<T>(
@@ -21,6 +22,7 @@ export function useSort<T>(
   };
 
   const sortedData = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return [...data].sort((a: any, b: any) => {
       let compare = 0;
       

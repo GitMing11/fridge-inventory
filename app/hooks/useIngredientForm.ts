@@ -46,7 +46,7 @@ export function useIngredientForm({
   }, [initialData]);
 
   // 핸들러: 입력값 변경
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: keyof typeof newIngredient, value: string | number) => {
     setNewIngredient((prev) => ({ ...prev, [field]: value }));
   };
 

@@ -183,7 +183,9 @@ export default function IngredientList({
 					<div className="flex items-center gap-2">
 						<select
 							value={sortKey}
-							onChange={(e) => onSortKeyChange(e.target.value as any)}
+							onChange={(e) =>
+								onSortKeyChange(e.target.value as Props['sortKey'])
+							}
 							className="rounded-lg border border-input-border bg-card px-2 py-1.5 text-xs font-medium text-foreground outline-none focus:border-primary"
 						>
 							<option value="expiration">유통기한순</option>

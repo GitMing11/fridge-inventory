@@ -145,7 +145,7 @@ export async function consumeIngredientAction(
 // --- 3. 일괄 소비/폐기 (Bulk Consume) ---
 export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discarded') {
   try {
-    const results = await Promise.all(
+    await Promise.all(
       ids.map((id) => 
         prisma.$transaction(async (tx) => {
           const item = await tx.ingredient.findUnique({ where: { id }, include: { category: true } });
