@@ -12,6 +12,19 @@ import { getCategoriesAction } from '../actions/categoryActions';
 import toast from 'react-hot-toast';
 import { IngredientInput } from '../../types';
 
+interface DbIngredient {
+  id: number;
+  name: string;
+  categoryId: number;
+  quantity: number;
+  unit: string;
+  expiration: Date;
+  purchasedAt: Date;
+  createdAt: Date;
+  updatedAt: Date | null;
+  category?: Category;
+}
+
 export function useInventory() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [ingredients, setIngredients] = useState<Ingredient[]>([]);
@@ -35,14 +48,16 @@ useEffect(() => {
 
         // 재료 설정
         if (ingResult.success && ingResult.data) {
-          // DB의 Date 객체를 프론트엔드에서 사용하는 형식(String)으로 변환
-          const formattedIngredients = ingResult.data.map(item => ({
+          const dbData = ingResult.data as DbIngredient[];
+          const formattedIngredients = dbData.map((item) => ({
             ...item,
             expiration: new Date(item.expiration).toISOString(),
             purchasedAt: new Date(item.purchasedAt).toISOString(),
             createdAt: new Date(item.createdAt).toISOString(),
             updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : undefined,
-          }));
+            category: item.category,
+          })) as Ingredient[];
+          
           setIngredients(formattedIngredients);
         } else {
           toast.error(ingResult.error || '재료 로딩 실패');
