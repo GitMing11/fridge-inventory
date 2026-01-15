@@ -1,6 +1,6 @@
 import React from 'react';
 import { HistoryItem } from '../../../types';
-import { CheckCircle2, Trash2, MoreHorizontal, Inbox } from 'lucide-react';
+import { CheckCircle2, Trash2, Inbox } from 'lucide-react';
 import MobileHistoryCard from './MobileHistoryCard';
 interface HistoryListProps {
 	history: HistoryItem[];

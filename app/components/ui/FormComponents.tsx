@@ -20,7 +20,7 @@ export function FormLabel({ icon, text }: LabelProps) {
 	);
 }
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
 
 export function FormInput(props: InputProps) {
 	return (

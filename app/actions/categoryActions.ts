@@ -7,7 +7,7 @@ import { revalidatePath } from 'next/cache';
 export async function getCategoriesAction() {
   try {
     const categories = await prisma.category.findMany({
-      orderBy: { id: 'asc' }, // 필요 시 정렬 추가
+      orderBy: { id: 'asc' },
     });
     return { success: true, data: categories };
   } catch (error) {
@@ -27,9 +27,11 @@ export async function createCategoryAction(name: string) {
       data: { name },
     });
     
-    revalidatePath('/'); // 데이터 변경 반영
+    revalidatePath('/');
     return { success: true, data: category };
-  } catch (error: any) {
+  }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  catch (error: any) {
     if (error.code === 'P2002') {
       return { success: false, error: '이미 존재하는 카테고리입니다.' };
     }

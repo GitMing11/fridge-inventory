@@ -81,7 +81,7 @@ const addIngredient = async (newItemData: IngredientInput) => {
   // 2. 재료 수정 (기존 단순 상태 변경 -> 서버 액션 호출로 변경)
 const updateIngredient = async (item: Ingredient) => {
     // 1. item 객체에서 id와 나머지 데이터를 분리하거나 필요한 데이터만 추출
-    const { id, ...rest } = item;
+    const { id } = item;
     
     // 2. Server Action에 보낼 데이터 포맷팅 (불필요한 필드 제거 및 타입 맞추기)
     const updateData = {

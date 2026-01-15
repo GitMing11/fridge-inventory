@@ -27,7 +27,7 @@ export const formatDateInput = (dateStr: string): string => {
   if (!dateStr) return getToday();
   try {
     return new Date(dateStr).toISOString().split('T')[0];
-  } catch (e) {
+  } catch {
     return getToday();
   }
 };
@@ -42,7 +42,7 @@ export const formatDate = (dateStr: string): string => {
       month: 'long',
       day: 'numeric',
     });
-  } catch (e) {
+  } catch {
     return '-';
   }
 };
