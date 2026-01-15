@@ -142,6 +142,7 @@ export default function HomePage() {
 			{/* --- Modals --- */}
 			{showModal && (
 				<IngredientForm
+					isOpen={showModal}
 					categories={categories}
 					setCategories={setCategories}
 					onAdd={addIngredient}
