@@ -7,9 +7,11 @@ import toast from 'react-hot-toast';
 export function useHistory() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
-  
+  const [error, setError] = useState<string | null>(null);
+
 const fetchHistory = useCallback(async () => {
-    setLoading(true);
+  setLoading(true);
+  setError(null);
     try {
       // Server Action 호출
       const result = await getHistoryAction();
@@ -25,10 +27,13 @@ const fetchHistory = useCallback(async () => {
         }));
         setHistory(formattedHistory);
       } else {
-        toast.error(result.error || '히스토리를 불러오지 못했습니다.');
+        const errorMessage = result.error || '히스토리를 불러오지 못했습니다.';
+        setError(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
       console.error(error);
+      setError('오류가 발생했습니다.');
       toast.error('오류가 발생했습니다.');
     } finally {
       setLoading(false);
@@ -39,5 +44,5 @@ const fetchHistory = useCallback(async () => {
     fetchHistory();
   }, [fetchHistory]);
 
-  return { history, loading, refreshHistory: fetchHistory };
+  return { history, loading, error, refreshHistory: fetchHistory };
 }
