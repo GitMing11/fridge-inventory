@@ -149,7 +149,7 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
   try {
     await Promise.all(
       ids.map((id) => 
-        prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+        prisma.$transaction(async (tx) => {
           const item = await tx.ingredient.findUnique({ where: { id }, include: { category: true } });
           if (!item) return;
 
