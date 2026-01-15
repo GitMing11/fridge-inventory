@@ -1,32 +1,55 @@
+// lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
-import { PrismaMariaDb } from '@prisma/adapter-mariadb';
+import { PrismaPg } from '@prisma/adapter-pg';
+import { Pool } from 'pg';
 
-const globalForPrisma = global as unknown as { prisma?: PrismaClient };
-
-// 1. 환경 변수에서 URL 가져오기
-const connectionString = process.env.DATABASE_URL;
-
-// 환경 변수가 없으면 에러를 발생시켜 개발자가 바로 알 수 있게 함 (보안상 안전)
-if (!connectionString) {
-  throw new Error("DATABASE_URL 환경 변수가 설정되지 않았습니다. .env 파일을 확인해주세요.");
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: PrismaClient | undefined;
+  var pgPool: Pool | undefined;
 }
 
-// 2. URL 파싱
-const url = new URL(connectionString);
+/**
+ * PostgreSQL Pool
+ * - Vercel / Serverless 환경에서 필수
+ * - Supabase Pooler URL 사용 권장
+ */
+const pool =
+  global.pgPool ??
+  new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : undefined,
+    max: 10,               // 최대 커넥션 수 (안전)
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 2_000,
+  });
 
-// 3. Prisma 어댑터 생성
-const adapter = new PrismaMariaDb({
-  host: url.hostname,
-  port: Number(url.port) || 3306,
-  user: url.username,
-  password: url.password,
-  database: url.pathname.slice(1), // '/' 제거
-  connectionLimit: 5,
-});
+if (process.env.NODE_ENV !== 'production') {
+  global.pgPool = pool;
+}
 
-// 4. 어댑터를 사용하여 PrismaClient 초기화
+/**
+ * Prisma Adapter
+ */
+const adapter = new PrismaPg(pool);
+
+/**
+ * Prisma Client (Singleton)
+ */
 export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({ adapter });
+  global.prisma ??
+  new PrismaClient({
+    adapter,
+    log:
+      process.env.NODE_ENV === 'development'
+        ? ['query', 'warn', 'error']
+        : ['error'],
+  });
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') {
+  global.prisma = prisma;
+}
+
+export default prisma;
