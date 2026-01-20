@@ -2,10 +2,15 @@ import React from 'react';
 import { HistoryItem } from '../../../types';
 import { CheckCircle2, Trash2, Inbox } from 'lucide-react';
 import MobileHistoryCard from './MobileHistoryCard';
+import { CATEGORY_COLORS } from '../../constants';
+
 interface HistoryListProps {
 	history: HistoryItem[];
 }
-import { CATEGORY_COLORS } from '../../constants';
+
+interface ExtendedHistoryItem extends HistoryItem {
+	category?: { color: string };
+}
 
 export default function HistoryList({ history }: HistoryListProps) {
 	if (history.length === 0) {
@@ -54,12 +59,11 @@ export default function HistoryList({ history }: HistoryListProps) {
 						</thead>
 						<tbody className="divide-y divide-card-border">
 							{history.map((item) => {
-								// 1. 카테고리 색상 결정 로직
-								// HistoryItem에 category 객체가 포함되어 있거나, 별도의 categoryColor 필드가 있다고 가정합니다.
-								// 데이터가 없을 경우 안전하게 'gray'를 사용합니다.
+								const extendedItem = item as ExtendedHistoryItem;
+
 								const categoryColor =
-									(item as any).category?.color || // Prisma include 사용 시
-									(item as any).categoryColor || // 별도 필드 사용 시
+									extendedItem.categoryColor ||
+									extendedItem.category?.color ||
 									'gray';
 
 								const colorKey = categoryColor as keyof typeof CATEGORY_COLORS;

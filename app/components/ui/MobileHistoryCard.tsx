@@ -3,13 +3,19 @@ import { Tag, CheckCircle2, Trash2, ShoppingBag, Calendar } from 'lucide-react';
 import { HistoryItem } from '../../../types';
 import { CATEGORY_COLORS } from '../../constants';
 
+interface ExtendedHistoryItem extends HistoryItem {
+	category?: { color: string };
+}
+
 export default function MobileHistoryCard({ item }: { item: HistoryItem }) {
 	const isEaten = item.status === 'eaten';
 
-	const colorKey = ((item as any).categoryColor ||
-		(item as any).category?.color ||
-		'gray') as keyof typeof CATEGORY_COLORS;
+	const extendedItem = item as ExtendedHistoryItem;
 
+	const rawColor =
+		extendedItem.categoryColor || extendedItem.category?.color || 'gray';
+
+	const colorKey = rawColor as keyof typeof CATEGORY_COLORS;
 	const colorClass = CATEGORY_COLORS[colorKey] || CATEGORY_COLORS['gray'];
 
 	return (

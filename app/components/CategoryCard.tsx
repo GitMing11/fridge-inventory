@@ -1,9 +1,8 @@
 'use client';
 
-import { MoreHorizontal, Edit2, Trash2 } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { Category } from '../../types';
 import { CATEGORY_COLORS } from '../constants';
-import { useState } from 'react';
 
 interface CategoryCardProps {
 	category: Category;
@@ -11,9 +10,8 @@ interface CategoryCardProps {
 }
 
 export default function CategoryCard({ category, onEdit }: CategoryCardProps) {
-	// Tailwind 클래스 매핑 (없으면 gray 기본값)
-	// @ts-ignore
-	const colorClass = CATEGORY_COLORS[category.color] || CATEGORY_COLORS.gray;
+	const colorKey = (category.color || 'gray') as keyof typeof CATEGORY_COLORS;
+	const colorClass = CATEGORY_COLORS[colorKey] || CATEGORY_COLORS.gray;
 
 	return (
 		<div
