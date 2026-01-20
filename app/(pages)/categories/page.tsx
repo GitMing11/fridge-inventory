@@ -1,19 +1,59 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FolderOpen } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 import { useCategories } from '../../hooks/useCategories';
 import CategoryHeader from '../../components/ui/CategoryHeader';
-import CategoryForm from '../../components/CategoryForm';
-import CategoryItem from '../../components/CategoryItem';
+import CategoryCard from '../../components/CategoryCard';
+import CategoryFormModal from '../../components/CategoryFormModal';
+import { Category } from '../../../types';
 
 export default function CategoriesPage() {
 	const { categories, addCategory, updateCategory, deleteCategory } =
 		useCategories();
 
-	// 현재 수정 중인 카테고리 ID (한 번에 하나만 수정 가능하도록 Page에서 관리)
-	const [editingId, setEditingId] = useState<number | null>(null);
+	// 모달 상태 관리
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+
+	// 추가 버튼 클릭 시
+	const handleAddClick = () => {
+		setEditingCategory(null); // 초기화
+		setIsModalOpen(true);
+	};
+
+	// 카드 클릭(수정) 시
+	const handleEditClick = (category: Category) => {
+		setEditingCategory(category);
+		setIsModalOpen(true);
+	};
+
+	// 폼 제출 핸들러 (추가/수정 분기)
+	const handleFormSubmit = async (
+		name: string,
+		icon: string,
+		color: string
+	) => {
+		if (editingCategory) {
+			await updateCategory(editingCategory.id, name, icon, color);
+		} else {
+			await addCategory(name, icon, color);
+		}
+	};
+
+	// 삭제 핸들러
+	const handleDelete = async () => {
+		if (
+			editingCategory &&
+			confirm(
+				'정말 삭제하시겠습니까? \n(포함된 재료가 있다면 삭제되지 않습니다)'
+			)
+		) {
+			await deleteCategory(editingCategory.id);
+			setIsModalOpen(false);
+		}
+	};
 
 	return (
 		<div className="min-h-screen bg-background transition-colors duration-300">
@@ -21,39 +61,38 @@ export default function CategoriesPage() {
 				{/* 1. Header */}
 				<CategoryHeader />
 
-				{/* 2. Add Form */}
-				<CategoryForm onAdd={addCategory} />
+				{/* 그리드 레이아웃 */}
+				<div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+					{/* 1. 카테고리 카드들 */}
+					{categories.map((cat) => (
+						<CategoryCard
+							key={cat.id}
+							category={cat}
+							onEdit={handleEditClick}
+						/>
+					))}
 
-				{/* 3. List */}
-				<div className="overflow-hidden rounded-3xl border border-card-border bg-card shadow-sm">
-					<ul className="divide-y divide-card-border">
-						{categories.map((cat) => (
-							<CategoryItem
-								key={cat.id}
-								category={cat}
-								isEditing={editingId === cat.id}
-								onEditStart={() => setEditingId(cat.id)}
-								onEditCancel={() => setEditingId(null)}
-								onUpdate={updateCategory}
-								onDelete={deleteCategory}
-							/>
-						))}
-
-						{/* Empty State */}
-						{categories.length === 0 && (
-							<li className="flex flex-col items-center justify-center gap-2 py-16 text-muted-foreground">
-								<div className="flex h-12 w-12 items-center justify-center rounded-full bg-input-bg">
-									<FolderOpen
-										size={24}
-										className="opacity-50"
-									/>
-								</div>
-								<p>등록된 카테고리가 없습니다.</p>
-							</li>
-						)}
-					</ul>
+					{/* 2. 추가하기 버튼 (마지막 카드) */}
+					<button
+						onClick={handleAddClick}
+						className="group flex min-h-[120px] flex-col items-center justify-center gap-2 rounded-3xl border-2 border-dashed border-neutral bg-transparent text-muted-foreground transition-all hover:border-primary hover:bg-info hover:text-text-brand active:scale-95"
+					>
+						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral transition-colors group-hover:bg-background/50">
+							<Plus size={24} />
+						</div>
+						<span className="font-medium">카테고리 추가</span>
+					</button>
 				</div>
 			</div>
+
+			{/* 모달 */}
+			<CategoryFormModal
+				isOpen={isModalOpen}
+				onClose={() => setIsModalOpen(false)}
+				onSubmit={handleFormSubmit}
+				onDelete={editingCategory ? handleDelete : undefined}
+				initialData={editingCategory}
+			/>
 		</div>
 	);
 }

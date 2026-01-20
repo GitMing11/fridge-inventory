@@ -113,6 +113,7 @@ export async function consumeIngredientAction(
         data: {
           name: ingredient.name,
           categoryName: ingredient.category.name,
+          categoryColor: ingredient.category.color,
           quantity: quantity,
           unit: ingredient.unit,
           expiration: ingredient.expiration,
@@ -158,6 +159,7 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
              data: {
                 name: item.name,
                 categoryName: item.category.name,
+                categoryColor: item.category.color,
                 quantity: item.quantity,
                 unit: item.unit,
                 expiration: item.expiration,

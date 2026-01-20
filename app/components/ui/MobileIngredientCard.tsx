@@ -11,6 +11,7 @@ import {
 	Trash2,
 } from 'lucide-react';
 import ActionButton from './ActionButton';
+import { CATEGORY_COLORS } from '../../constants';
 
 interface MobileIngredientCardProps {
 	ingredient: Ingredient;
@@ -42,14 +43,18 @@ export default function MobileIngredientCard({
 	const isExpired = dDay < 0;
 	const isUrgent = dDay >= 0 && dDay <= 3;
 
+	const colorKey = (i.category?.color ||
+		'gray') as keyof typeof CATEGORY_COLORS;
+	const colorClass = CATEGORY_COLORS[colorKey] || CATEGORY_COLORS['gray'];
+
 	return (
 		<div
 			className={`relative flex flex-col gap-3 rounded-2xl border bg-card p-5 shadow-sm transition-all active:scale-[0.98] ${
 				isSelected
 					? 'border-primary ring-1 ring-primary bg-primary/5'
 					: isExpired
-					? 'border-danger/30 bg-danger/5'
-					: 'border-card-border hover:border-primary/30'
+						? 'border-danger/30 bg-danger/5'
+						: 'border-card-border hover:border-primary/30'
 			}`}
 			onClick={() => onView(i)}
 		>
@@ -68,7 +73,9 @@ export default function MobileIngredientCard({
 					)}
 				</div>
 				<div className="flex flex-1 items-start justify-between">
-					<span className="inline-flex items-center rounded-lg bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
+					<span
+						className={`inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors ${colorClass}`}
+					>
 						{i.category?.name}
 					</span>
 					<div className="flex items-center gap-2">

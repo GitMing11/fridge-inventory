@@ -15,6 +15,8 @@ generator client {
 model Category {
   id          Int          @id @default(autoincrement())
   name        String       @unique
+  icon        String       @default("📦")
+  color       String       @default("gray")
   ingredients Ingredient[]
 }
 
@@ -32,13 +34,14 @@ model Ingredient {
 }
 
 model IngredientHistory {
-  id           Int      @id @default(autoincrement())
-  name         String
-  categoryName String
-  quantity     Float
-  unit         String
-  expiration   DateTime
-  purchasedAt  DateTime
-  consumedAt   DateTime @default(now())
-  status       String // 'eaten' 또는 'discarded'
+  id            Int      @id @default(autoincrement())
+  name          String
+  categoryName  String
+  categoryColor String   @default("gray")
+  quantity      Float
+  unit          String
+  expiration    DateTime
+  purchasedAt   DateTime
+  consumedAt    DateTime @default(now())
+  status        String // 'eaten' 또는 'discarded'
 }
