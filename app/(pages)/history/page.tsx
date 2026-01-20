@@ -1,12 +1,40 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { History } from 'lucide-react';
 import { useHistory } from '../../hooks/useHistory';
+import { useCategories } from '../../hooks/useCategories';
 import HistoryList from '../../components/ui/HistoryList';
+import FilterBar from '../../components/ui/FilterBar';
 
 export default function HistoryPage() {
 	const { history, loading, error } = useHistory();
+	const { categories } = useCategories();
+	const [searchTerm, setSearchTerm] = useState('');
+	const [selectedCategory, setSelectedCategory] = useState<number | 'all'>(
+		'all'
+	);
+
+	// 필터링 로직
+	const filteredHistory = history.filter((item) => {
+		// 이름 검색
+		const matchesSearch = item.name
+			.toLowerCase()
+			.includes(searchTerm.toLowerCase());
+
+		// 카테고리 필터링
+		let matchesCategory = true;
+
+		if (selectedCategory !== 'all') {
+			const targetCategory = categories.find((c) => c.id === selectedCategory);
+
+			if (targetCategory) {
+				matchesCategory = item.categoryName === targetCategory.name;
+			}
+		}
+
+		return matchesSearch && matchesCategory;
+	});
 
 	return (
 		<div className="min-h-screen bg-background transition-colors duration-300">
@@ -26,6 +54,16 @@ export default function HistoryPage() {
 					</p>
 				</div>
 
+				<div className="mb-6">
+					<FilterBar
+						searchTerm={searchTerm}
+						onSearchChange={setSearchTerm}
+						selectedCategory={selectedCategory}
+						onCategoryChange={setSelectedCategory}
+						categories={categories}
+					/>
+				</div>
+
 				{/* 로딩 및 에러 처리 */}
 				{loading ? (
 					<div className="py-20 text-center text-muted-foreground animate-pulse">
@@ -36,7 +74,7 @@ export default function HistoryPage() {
 						{error}
 					</div>
 				) : (
-					<HistoryList history={history} />
+					<HistoryList history={filteredHistory} />
 				)}
 			</div>
 		</div>

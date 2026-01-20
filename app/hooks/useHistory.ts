@@ -8,6 +8,7 @@ interface DbHistoryItem {
   id: number;
   name: string;
   categoryName: string;
+  categoryColor: string;
   quantity: number;
   unit: string;
   expiration: Date;
@@ -32,6 +33,9 @@ const fetchHistory = useCallback(async () => {
         const dbData = result.data as DbHistoryItem[];
         const formattedHistory: HistoryItem[] = dbData.map((item) => ({
           ...item,
+          
+          categoryColor: item.categoryColor || 'gray',
+
           expiration: new Date(item.expiration).toISOString(),
           purchasedAt: new Date(item.purchasedAt).toISOString(),
           consumedAt: new Date(item.consumedAt).toISOString(),

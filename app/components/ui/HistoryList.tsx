@@ -2,8 +2,14 @@ import React from 'react';
 import { HistoryItem } from '../../../types';
 import { CheckCircle2, Trash2, Inbox } from 'lucide-react';
 import MobileHistoryCard from './MobileHistoryCard';
+import { CATEGORY_COLORS } from '../../constants';
+
 interface HistoryListProps {
 	history: HistoryItem[];
+}
+
+interface ExtendedHistoryItem extends HistoryItem {
+	category?: { color: string };
 }
 
 export default function HistoryList({ history }: HistoryListProps) {
@@ -52,51 +58,69 @@ export default function HistoryList({ history }: HistoryListProps) {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-card-border">
-							{history.map((item) => (
-								<tr
-									key={item.id}
-									className="transition-colors hover:bg-input-bg/30"
-								>
-									<td className="px-4 py-4 text-center font-bold text-foreground">
-										{item.name}
-									</td>
-									<td className="px-4 py-4 text-center">
-										<span className="inline-flex items-center rounded-full bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
-											{item.categoryName}
-										</span>
-									</td>
-									<td className="px-4 py-4 text-center font-medium text-foreground">
-										{item.quantity}
-										<span className="ml-0.5 text-xs text-muted-foreground">
-											{item.unit}
-										</span>
-									</td>
-									<td className="px-4 py-4 text-center">
-										<span
-											className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
-												item.status === 'eaten'
-													? 'bg-success text-success-foreground ring-success-foreground/20'
-													: 'bg-danger text-danger-foreground ring-danger-foreground/20'
-											}`}
-										>
-											{item.status === 'eaten' ? (
-												<>
-													<CheckCircle2 size={12} />
-													사용 완료
-												</>
-											) : (
-												<>
-													<Trash2 size={12} />
-													폐기됨
-												</>
-											)}
-										</span>
-									</td>
-									<td className="px-4 py-4 text-center text-muted-foreground">
-										{new Date(item.consumedAt).toLocaleDateString()}
-									</td>
-								</tr>
-							))}
+							{history.map((item) => {
+								const extendedItem = item as ExtendedHistoryItem;
+
+								const categoryColor =
+									extendedItem.categoryColor ||
+									extendedItem.category?.color ||
+									'gray';
+
+								const colorKey = categoryColor as keyof typeof CATEGORY_COLORS;
+								const colorClass =
+									CATEGORY_COLORS[colorKey] || CATEGORY_COLORS['gray'];
+
+								return (
+									<tr
+										key={item.id}
+										className="transition-colors hover:bg-input-bg/30"
+									>
+										<td className="px-4 py-4 text-center font-bold text-foreground">
+											{item.name}
+										</td>
+
+										{/* 2. 카테고리 뱃지 색상 적용 */}
+										<td className="px-4 py-4 text-center">
+											<span
+												className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${colorClass}`}
+											>
+												{item.categoryName}
+											</span>
+										</td>
+
+										<td className="px-4 py-4 text-center font-medium text-foreground">
+											{item.quantity}
+											<span className="ml-0.5 text-xs text-muted-foreground">
+												{item.unit}
+											</span>
+										</td>
+										<td className="px-4 py-4 text-center">
+											<span
+												className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ring-1 ring-inset ${
+													item.status === 'eaten'
+														? 'bg-success text-success-foreground ring-success-foreground/20'
+														: 'bg-danger text-danger-foreground ring-danger-foreground/20'
+												}`}
+											>
+												{item.status === 'eaten' ? (
+													<>
+														<CheckCircle2 size={12} />
+														사용 완료
+													</>
+												) : (
+													<>
+														<Trash2 size={12} />
+														폐기됨
+													</>
+												)}
+											</span>
+										</td>
+										<td className="px-4 py-4 text-center text-muted-foreground">
+											{new Date(item.consumedAt).toLocaleDateString()}
+										</td>
+									</tr>
+								);
+							})}
 						</tbody>
 					</table>
 				</div>

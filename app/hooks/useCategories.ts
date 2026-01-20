@@ -17,7 +17,7 @@ export function useCategories() {
     const fetchCategories = async () => {
       const result = await getCategoriesAction();
       if (result.success && result.data) {
-        setCategories(result.data);
+        setCategories(result.data as Category[]);
       } else {
         toast.error(result.error || '카테고리 로딩 실패');
       }
@@ -27,8 +27,8 @@ export function useCategories() {
   }, []);
 
   // 1. 카테고리 추가
-  const addCategory = async (name: string) => {
-    const result = await createCategoryAction(name);
+  const addCategory = async (name: string, icon: string, color: string) => {
+    const result = await createCategoryAction(name, icon, color);
     
     if (result.success && result.data) {
       setCategories((prev) => [...prev, result.data as Category]);
@@ -41,8 +41,8 @@ export function useCategories() {
   };
 
   // 2. 카테고리 수정
-  const updateCategory = async (id: number, name: string) => {
-    const result = await updateCategoryAction(id, name);
+  const updateCategory = async (id: number, name: string, icon: string, color: string) => {
+    const result = await updateCategoryAction(id, name, icon, color);
 
     if (result.success && result.data) {
       setCategories((prev) =>

@@ -55,7 +55,7 @@ export function useIngredientForm({
     if (!newCategory.trim()) return;
 
     try {
-      const result = await createCategoryAction(newCategory.trim());
+      const result = await createCategoryAction(newCategory.trim(), '📦', 'gray');
 
       if (result.success && result.data) {
         setCategories((prev) => [...prev, result.data as Category]);

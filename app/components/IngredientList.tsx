@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import ActionButton from './ui/ActionButton';
 import MobileIngredientCard from './ui/MobileIngredientCard';
+import { CATEGORY_COLORS } from '../constants';
 
 interface Props {
 	ingredients: Ingredient[];
@@ -142,7 +143,7 @@ export default function IngredientList({
 						>
 							<CheckSquare className="h-5 w-5" />
 						</div>
-						<span className="text-sm font-bold text-primary">
+						<span className="text-sm font-bold text-foreground">
 							{selectedIds.length}개 선택됨
 						</span>
 					</div>
@@ -254,8 +255,8 @@ export default function IngredientList({
 									{ key: 'category', label: '카테고리' },
 									{ key: 'name', label: '이름' },
 									{ key: null, label: '수량' },
-									{ key: 'expiration', label: '유통기한' },
 									{ key: 'purchasedAt', label: '구매일' },
+									{ key: 'expiration', label: '유통기한' },
 									{ key: null, label: '관리' },
 								].map(({ key, label }) => (
 									<th
@@ -283,6 +284,13 @@ export default function IngredientList({
 								const isUrgent = dDay >= 0 && dDay <= 3;
 								const isSelected = selectedIds.includes(i.id);
 
+								// 2. 카테고리 색상 결정 Logic
+								const colorKey = (i.category?.color ||
+									'gray') as keyof typeof CATEGORY_COLORS;
+
+								const colorClass =
+									CATEGORY_COLORS[colorKey] || CATEGORY_COLORS['gray'];
+
 								return (
 									<tr
 										key={i.id}
@@ -290,8 +298,8 @@ export default function IngredientList({
 											isSelected
 												? 'bg-primary/5'
 												: isExpired
-												? 'bg-danger/10 hover:bg-danger/15'
-												: 'hover:bg-muted/5'
+													? 'bg-danger/10 hover:bg-danger/15'
+													: 'hover:bg-muted/5'
 										}`}
 										onClick={() => onView(i)} // 행 클릭 시 상세보기
 									>
@@ -313,7 +321,9 @@ export default function IngredientList({
 										</td>
 
 										<td className="px-4 py-4 text-center">
-											<span className="inline-flex items-center rounded-full bg-input-bg px-2.5 py-1 text-xs font-medium text-muted-foreground">
+											<span
+												className={`inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${colorClass}`}
+											>
 												{i.category?.name}
 											</span>
 										</td>
@@ -331,6 +341,10 @@ export default function IngredientList({
 											</span>
 										</td>
 
+										<td className="px-4 py-4 text-center text-muted-foreground">
+											{new Date(i.purchasedAt).toLocaleDateString()}
+										</td>
+
 										<td className="px-4 py-4 text-center">
 											<div className="flex items-center justify-center gap-2">
 												<span
@@ -338,8 +352,8 @@ export default function IngredientList({
 														isExpired
 															? 'text-danger-foreground font-bold'
 															: isUrgent
-															? 'text-warning-foreground font-bold'
-															: 'text-muted-foreground'
+																? 'text-warning-foreground font-bold'
+																: 'text-muted-foreground'
 													}`}
 												>
 													{new Date(i.expiration).toLocaleDateString()}
@@ -355,10 +369,6 @@ export default function IngredientList({
 													</span>
 												)}
 											</div>
-										</td>
-
-										<td className="px-4 py-4 text-center text-muted-foreground">
-											{new Date(i.purchasedAt).toLocaleDateString()}
 										</td>
 
 										<td className="px-4 py-4 text-center">

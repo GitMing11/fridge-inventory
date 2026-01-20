@@ -17,17 +17,20 @@ export async function getCategoriesAction() {
 }
 
 // 2. 카테고리 생성
-export async function createCategoryAction(name: string) {
+export async function createCategoryAction(name: string, icon: string, color: string) {
   if (!name || typeof name !== 'string') {
     return { success: false, error: '카테고리 이름이 필요합니다.' };
   }
 
   try {
     const category = await prisma.category.create({
-      data: { name },
+      data: { name,
+        icon: icon || '📦',      // 기본값 처리
+        color: color || 'gray' },
     });
     
     revalidatePath('/');
+    revalidatePath('/categories');
     return { success: true, data: category };
   }
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,11 +44,11 @@ export async function createCategoryAction(name: string) {
 }
 
 // 3. 카테고리 수정
-export async function updateCategoryAction(id: number, name: string) {
+export async function updateCategoryAction(id: number, name: string, icon: string, color: string) {
   try {
     const category = await prisma.category.update({
       where: { id },
-      data: { name },
+      data: { name, icon, color },
     });
 
     revalidatePath('/');

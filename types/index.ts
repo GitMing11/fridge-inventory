@@ -3,6 +3,8 @@
 export interface Category {
   id: number;
   name: string;
+  icon: string; 
+  color: string;
 }
 
 export interface Ingredient {
@@ -31,6 +33,7 @@ export interface HistoryItem {
   id: number;
   name: string;
   categoryName: string;
+  categoryColor: string;
   quantity: number;
   unit: string;
   expiration: string;

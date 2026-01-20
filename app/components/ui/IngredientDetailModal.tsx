@@ -16,7 +16,12 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 	const dDay = getDDay(item.expiration);
 	const isUrgent = dDay >= 0 && dDay <= 3;
 
-	// ESC 키로 모달 닫기 기능
+	// 1. 카테고리 정보 추출 (없을 경우 기본값 설정)
+	const categoryName = item.category?.name || '미분류';
+	const categoryIcon = item.category?.icon || '🥡';
+	// 카테고리 색상 키 (예: 'green', 'red'...)
+	const colorKey = item.category?.color || 'gray';
+
 	useEffect(() => {
 		const handleEsc = (e: KeyboardEvent) => {
 			if (e.key === 'Escape') onClose();
@@ -34,17 +39,24 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 				onClick={(e) => e.stopPropagation()}
 				className="relative w-full max-w-[450px] overflow-hidden rounded-3xl bg-card border border-card-border shadow-2xl animate-in fade-in zoom-in-95 duration-200"
 			>
-				{/* 헤더 */}
-				<div className="relative h-32 bg-input-bg border-b border-card-border">
+				<div
+					className={`relative h-32 border-b transition-colors duration-300
+            bg-${colorKey}-100 border-${colorKey}-200 
+            dark:bg-${colorKey}-900/30 dark:border-${colorKey}-800/50
+          `}
+				>
+					{/* 닫기 버튼 */}
 					<button
 						onClick={onClose}
-						className="absolute right-5 top-5 rounded-full p-2 bg-card text-muted-foreground transition-colors hover:text-foreground shadow-sm hover:shadow-md"
+						className="absolute right-5 top-5 rounded-full p-2 bg-card/80 text-muted-foreground transition-colors hover:bg-card hover:text-foreground shadow-sm hover:shadow-md backdrop-blur-sm"
 					>
 						<X size={20} />
 					</button>
+
+					{/* 아이콘 영역 */}
 					<div className="absolute -bottom-10 left-8 flex items-end gap-4">
 						<div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-card border border-card-border shadow-lg text-4xl">
-							🥡
+							{categoryIcon}
 						</div>
 					</div>
 				</div>
@@ -58,10 +70,15 @@ export default function IngredientDetailModal({ item, onClose }: Props) {
 							</h2>
 							<DDayBadge dDay={dDay} />
 						</div>
-						<p className="text-sm text-muted-foreground flex items-center gap-1.5">
-							<Tag size={14} />
-							{item.category?.name || '미분류'}
-						</p>
+						{/* 태그 부분도 카테고리 색상으로 깔맞춤하면 예쁩니다 (선택사항) */}
+						<div
+							className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium 
+                bg-${colorKey}-100 text-${colorKey}-700 
+                dark:bg-${colorKey}-900/50 dark:text-${colorKey}-300`}
+						>
+							<Tag size={12} />
+							{categoryName}
+						</div>
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
