@@ -1,175 +1,126 @@
-'use client';
+// app/page.tsx
+import Link from 'next/link';
+import { ArrowRight, Refrigerator, Bell, Users, BarChart3 } from 'lucide-react';
+import { createClient } from '../../../lib/supabase/server';
 
-import React, { useState } from 'react';
-import { Refrigerator, AlertTriangle, XCircle } from 'lucide-react';
-
-import IngredientForm from '../../components/IngredientForm';
-import IngredientList from '../../components/IngredientList';
-import IngredientDetailModal from '../../components/ui/IngredientDetailModal';
-import ConsumeModal from '../../components/ConsumeModal';
-import StatCard from '../../components/ui/StatCard';
-import FilterBar from '../../components/ui/FilterBar';
-import HomeHeader from '../../components/ui/HomeHeader';
-
-import { useInventory } from '../../hooks/useInventory';
-import { getDDay } from '../../utils/dateUtils';
-import { Ingredient } from '../../../types';
-
-export default function HomePage() {
-	// --- Custom Hook ---
+export default async function LandingPage() {
+	const supabase = await createClient();
 	const {
-		categories,
-		setCategories,
-		ingredients,
-		consumeIngredient,
-		bulkConsumeIngredients,
-		addIngredient,
-		updateIngredient,
-	} = useInventory();
-
-	// --- UI State (Modal & Filter) ---
-	const [showModal, setShowModal] = useState(false);
-	const [editingItem, setEditingItem] = useState<Ingredient | null>(null);
-	const [viewingItem, setViewingItem] = useState<Ingredient | null>(null);
-	const [consumingTarget, setConsumingTarget] = useState<{
-		item: Ingredient;
-		status: 'eaten' | 'discarded';
-	} | null>(null);
-
-	const [searchTerm, setSearchTerm] = useState('');
-	const [selectedCategory, setSelectedCategory] = useState<number | 'all'>(
-		'all'
-	);
-	const [sortKey, setSortKey] = useState<
-		'expiration' | 'purchasedAt' | 'category' | 'name'
-	>('expiration');
-	const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-
-	// --- Stats Calculation ---
-	const totalCount = ingredients.length;
-	const expiringCount = ingredients.filter((i) => {
-		const dDay = getDDay(i.expiration);
-		return dDay >= 0 && dDay <= 3;
-	}).length;
-	const expiredCount = ingredients.filter(
-		(i) => getDDay(i.expiration) < 0
-	).length;
-
-	// --- Filtering ---
-	const filteredIngredients = ingredients.filter((item) => {
-		const matchesSearch = item.name
-			.toLowerCase()
-			.includes(searchTerm.toLowerCase());
-		const matchesCategory =
-			selectedCategory === 'all' || item.categoryId === selectedCategory;
-		return matchesSearch && matchesCategory;
-	});
-
-	// --- Handlers ---
-	const handleConfirmConsume = async (quantity: number) => {
-		if (!consumingTarget) return;
-		const success = await consumeIngredient(
-			consumingTarget.item,
-			consumingTarget.status,
-			quantity
-		);
-		if (success) setConsumingTarget(null);
-	};
+		data: { user },
+	} = await supabase.auth.getUser();
 
 	return (
-		<div className="min-h-screen flex flex-col bg-background transition-colors duration-300">
-			<main className="flex-1 px-4 py-8 md:px-8 md:py-12 max-w-5xl mx-auto w-full space-y-10">
-				{/* 1. Header */}
-				<HomeHeader
-					onAddClick={() => {
-						setEditingItem(null);
-						setShowModal(true);
-					}}
-				/>
+		<div className="flex flex-col min-h-screen bg-background transition-colors duration-300">
+			{/* 1. Hero Section (메인 배너) */}
+			<section className="flex-1 flex flex-col items-center justify-center px-4 py-24 text-center space-y-8 bg-gradient-to-b from-primary/10 to-transparent">
+				<div className="space-y-4 max-w-3xl mx-auto">
+					<div className="inline-block rounded-full bg-primary/20 px-3 py-1 text-sm font-medium text-text-brand mb-4">
+						✨ 스마트한 냉장고 관리의 시작
+					</div>
+					<h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-text-heading">
+						냉장고 속 재료, <br className="hidden sm:block" />
+						<span className="text-text-brand">더 신선하게</span> 관리하세요
+					</h1>
+					<p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
+						유통기한 임박 알림부터 가족과의 공유 냉장고까지.
+						<br />
+						버려지는 식재료 없이 알뜰한 주방 생활을 도와드립니다.
+					</p>
+				</div>
 
-				{/* 2. Stats */}
-				<section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					<StatCard
-						title="보관 중인 재료"
-						count={totalCount}
-						icon={<Refrigerator className="w-7 h-7" />}
-						theme="info"
-					/>
-					<StatCard
-						title="유통기한 임박"
-						count={expiringCount}
-						icon={<AlertTriangle className="w-7 h-7" />}
-						theme="warning"
-					/>
-					<StatCard
-						title="만료된 재료"
-						count={expiredCount}
-						icon={<XCircle className="w-7 h-7" />}
-						theme="danger"
-					/>
-				</section>
+				<div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
+					{user ? (
+						<Link
+							href="/home"
+							className="px-8 py-4 rounded-full bg-text-brand text-white font-bold text-lg hover:bg-text-brand/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2"
+						>
+							내 냉장고로 이동 <ArrowRight size={20} />
+						</Link>
+					) : (
+						<Link
+							href="/login"
+							className="px-8 py-4 rounded-full bg-text-brand text-white font-bold text-lg hover:bg-text-brand/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2"
+						>
+							무료로 시작하기 <ArrowRight size={20} />
+						</Link>
+					)}
 
-				{/* 3. Controls & List */}
-				<section className="space-y-6">
-					<FilterBar
-						searchTerm={searchTerm}
-						onSearchChange={setSearchTerm}
-						selectedCategory={selectedCategory}
-						onCategoryChange={setSelectedCategory}
-						categories={categories}
-					/>
+					{!user && (
+						<Link
+							href="#features"
+							className="px-8 py-4 rounded-full bg-card border border-header-border text-text-heading font-medium hover:bg-input-bg transition-colors"
+						>
+							기능 둘러보기
+						</Link>
+					)}
+				</div>
+			</section>
 
-					<IngredientList
-						ingredients={filteredIngredients}
-						sortKey={sortKey}
-						sortOrder={sortOrder}
-						onSortKeyChange={setSortKey}
-						onSortOrderChange={setSortOrder}
-						onConsume={(id, status) => {
-							const target = ingredients.find((i) => i.id === id);
-							if (target) setConsumingTarget({ item: target, status });
-						}}
-						onEdit={(item) => {
-							setEditingItem(item);
-							setShowModal(true);
-						}}
-						onView={setViewingItem}
-						onBulkConsume={bulkConsumeIngredients}
-					/>
-				</section>
-			</main>
+			{/* 2. Features Section (기능 소개) */}
+			<section
+				id="features"
+				className="py-24 px-4 bg-card/50"
+			>
+				<div className="max-w-6xl mx-auto">
+					<div className="text-center mb-16">
+						<h2 className="text-3xl font-bold text-text-heading mb-4">
+							왜 '냉장고 재고관리'인가요?
+						</h2>
+						<p className="text-muted-foreground">
+							복잡한 냉장고 정리, 이제 앱 하나로 해결하세요.
+						</p>
+					</div>
 
-			{/* --- Modals --- */}
-			{showModal && (
-				<IngredientForm
-					isOpen={showModal}
-					categories={categories}
-					setCategories={setCategories}
-					onAdd={addIngredient}
-					onUpdate={updateIngredient}
-					initialData={editingItem}
-					onClose={() => {
-						setShowModal(false);
-						setEditingItem(null);
-					}}
-				/>
-			)}
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+						{/* Feature 1 */}
+						<div className="bg-background p-8 rounded-3xl border border-header-border shadow-sm hover:shadow-md transition-shadow">
+							<div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+								<Refrigerator size={24} />
+							</div>
+							<h3 className="text-xl font-bold text-text-heading mb-2">
+								간편한 재고 파악
+							</h3>
+							<p className="text-muted-foreground text-sm">
+								한 눈에 들어오는 리스트로 냉장고에 뭐가 있는지 3초 만에
+								확인하세요.
+							</p>
+						</div>
 
-			{viewingItem && (
-				<IngredientDetailModal
-					item={viewingItem}
-					onClose={() => setViewingItem(null)}
-				/>
-			)}
+						{/* Feature 2 */}
+						<div className="bg-background p-8 rounded-3xl border border-header-border shadow-sm hover:shadow-md transition-shadow">
+							<div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-2xl flex items-center justify-center mb-6">
+								<Bell size={24} />
+							</div>
+							<h3 className="text-xl font-bold text-text-heading mb-2">
+								유통기한 알림
+							</h3>
+							<p className="text-muted-foreground text-sm">
+								소중한 식재료가 상해서 버려지지 않도록, 유통기한 임박 시 미리
+								알려드려요.
+							</p>
+						</div>
 
-			{consumingTarget && (
-				<ConsumeModal
-					item={consumingTarget.item}
-					status={consumingTarget.status}
-					onConfirm={handleConfirmConsume}
-					onClose={() => setConsumingTarget(null)}
-				/>
-			)}
+						{/* Feature 3 */}
+						<div className="bg-background p-8 rounded-3xl border border-header-border shadow-sm hover:shadow-md transition-shadow">
+							<div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-2xl flex items-center justify-center mb-6">
+								<Users size={24} />
+							</div>
+							<h3 className="text-xl font-bold text-text-heading mb-2">
+								가족과 함께 공유
+							</h3>
+							<p className="text-muted-foreground text-sm">
+								냉장고를 그룹으로 공유하세요. 누가 넣었는지, 누가 먹었는지
+								기록됩니다.
+							</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* 3. Footer */}
+			<footer className="py-8 border-t border-header-border text-center text-sm text-muted-foreground">
+				<p>© 2026 Fridge Inventory. All rights reserved.</p>
+			</footer>
 		</div>
 	);
 }
