@@ -12,29 +12,140 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Category {
-  id          Int          @id @default(autoincrement())
-  name        String       @unique
-  icon        String       @default("📦")
-  color       String       @default("gray")
+// --------------------------------------
+// Auth & User
+// --------------------------------------
+
+// NextAuth.js (Auth.js) 호환을 위한 Account 모델
+model Account {
+  id                Int     @id @default(autoincrement())
+  userId            Int
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  email         String    @unique
+  password      String? // OAuth 로그인 시 비밀번호가 없을 수 있음
+  name          String? // 표시 이름 (기본)
+  nickname      String? // 별명 (요구사항 2)
+  image         String? // 프로필 이미지 (avatar -> image로 표준화 권장)
+  emailVerified DateTime? // 이메일 인증 여부
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  accounts    Account[]
+  sessions    Session[]
+  memberships GroupMember[]
+
+  // 활동 기록
+  addedIngredients Ingredient[]        @relation("IngredientAdder") // 내가 넣은 재료
+  consumedHistory  IngredientHistory[] // 내가 소비한 기록
+  memos            Memo[] // 내가 쓴 메모 (개인/그룹 불문)
+}
+
+// --------------------------------------
+// Fridge (Group)
+// --------------------------------------
+
+model Group {
+  id   Int    @id @default(autoincrement())
+  name String // 예: "우리집 냉장고", "자취방"
+  type String @default("GROUP") // 'PERSONAL' or 'GROUP' (요구사항 4)
+  code String @unique @default(uuid()) // 초대 코드
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  members     GroupMember[]
+  categories  Category[]
   ingredients Ingredient[]
+  history     IngredientHistory[]
+  memos       Memo[] // 이 그룹에 작성된 메모들 (요구사항 3)
+}
+
+model GroupMember {
+  id   Int    @id @default(autoincrement())
+  role String @default("MEMBER") // 'OWNER', 'ADMIN', 'MEMBER'
+
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+
+  @@unique([userId, groupId])
+}
+
+// --------------------------------------
+// Contents
+// --------------------------------------
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  name  String
+  icon  String @default("📦")
+  color String @default("gray")
+
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+
+  ingredients Ingredient[]
+
+  @@unique([name, groupId])
 }
 
 model Ingredient {
   id          Int      @id @default(autoincrement())
   name        String
-  category    Category @relation(fields: [categoryId], references: [id])
-  categoryId  Int
   quantity    Float
   unit        String
   expiration  DateTime
   purchasedAt DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relations
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+
+  // 누가 추가했는지 추적 (요구사항 6)
+  // 사용자가 탈퇴해도 기록은 남겨야 할 수 있으므로 User? (Optional) 혹은 onDelete 전략 고민 필요
+  addedBy   User? @relation("IngredientAdder", fields: [addedById], references: [id], onDelete: SetNull)
+  addedById Int?
 }
 
 model IngredientHistory {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
+  // 스냅샷 데이터 (삭제되어도 보존)
   name          String
   categoryName  String
   categoryColor String   @default("gray")
@@ -43,5 +154,33 @@ model IngredientHistory {
   expiration    DateTime
   purchasedAt   DateTime
   consumedAt    DateTime @default(now())
-  status        String // 'eaten' 또는 'discarded'
+  status        String // 'eaten' | 'discarded'
+
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int
+
+  // 누가 처리했는지 기록 (요구사항 7)
+  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId Int?
+}
+
+// --------------------------------------
+// Memo (요구사항 3)
+// --------------------------------------
+
+model Memo {
+  id      Int    @id @default(autoincrement())
+  content String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 작성자 (필수)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId Int
+
+  // 소속 그룹 (선택)
+  // groupId가 있으면 '그룹 메모', 없으면(null) '개인 메모'로 간주
+  group   Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId Int?
 }
