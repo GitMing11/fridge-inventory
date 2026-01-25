@@ -49,7 +49,7 @@ model User {
   email         String    @unique
   password      String? // OAuth 로그인 시 비밀번호가 없을 수 있음
   name          String? // 표시 이름 (기본)
-  nickname      String? // 별명 (요구사항 2)
+  nickname      String? // 별명
   image         String? // 프로필 이미지 (avatar -> image로 표준화 권장)
   emailVerified DateTime? // 이메일 인증 여부
 
@@ -74,7 +74,7 @@ model User {
 model Group {
   id   Int    @id @default(autoincrement())
   name String // 예: "우리집 냉장고", "자취방"
-  type String @default("GROUP") // 'PERSONAL' or 'GROUP' (요구사항 4)
+  type String @default("GROUP") // 'PERSONAL' or 'GROUP'
   code String @unique @default(uuid()) // 초대 코드
 
   createdAt DateTime @default(now())
@@ -85,7 +85,7 @@ model Group {
   categories  Category[]
   ingredients Ingredient[]
   history     IngredientHistory[]
-  memos       Memo[] // 이 그룹에 작성된 메모들 (요구사항 3)
+  memos       Memo[] // 이 그룹에 작성된 메모들
 }
 
 model GroupMember {
@@ -136,7 +136,7 @@ model Ingredient {
   group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId Int
 
-  // 누가 추가했는지 추적 (요구사항 6)
+  // 누가 추가했는지 추적
   // 사용자가 탈퇴해도 기록은 남겨야 할 수 있으므로 User? (Optional) 혹은 onDelete 전략 고민 필요
   addedBy   User? @relation("IngredientAdder", fields: [addedById], references: [id], onDelete: SetNull)
   addedById Int?
@@ -159,13 +159,13 @@ model IngredientHistory {
   group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
   groupId Int
 
-  // 누가 처리했는지 기록 (요구사항 7)
+  // 누가 처리했는지 기록
   user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId Int?
 }
 
 // --------------------------------------
-// Memo (요구사항 3)
+// Memo
 // --------------------------------------
 
 model Memo {
