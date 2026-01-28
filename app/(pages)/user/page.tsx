@@ -15,6 +15,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { deleteAccountAction } from '../../actions/authActions';
 
 export default function UserPage() {
 	const [user, setUser] = useState<User | null>(null);
@@ -41,6 +42,27 @@ export default function UserPage() {
 		await supabase.auth.signOut();
 		router.replace('/');
 		router.refresh();
+	};
+
+	// ✨ 회원 탈퇴 핸들러 추가
+	const handleWithdraw = async () => {
+		const confirmed = window.confirm(
+			'정말로 탈퇴하시겠습니까?\n작성한 모든 데이터가 삭제되며 복구할 수 없습니다.',
+		);
+
+		if (confirmed) {
+			setLoading(true); // 로딩 표시
+			const result = await deleteAccountAction();
+
+			if (result.success) {
+				alert('탈퇴가 완료되었습니다.');
+				router.replace('/');
+				router.refresh();
+			} else {
+				alert(result.error || '탈퇴 처리에 실패했습니다.');
+				setLoading(false);
+			}
+		}
 	};
 
 	if (loading)
@@ -206,7 +228,10 @@ export default function UserPage() {
 								<p className="text-xs text-red-600/70 dark:text-red-400/70 mb-4">
 									탈퇴 시 작성한 모든 데이터가 삭제되며 복구할 수 없습니다.
 								</p>
-								<button className="px-4 py-2 bg-white dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors shadow-sm">
+								<button
+									onClick={handleWithdraw}
+									className="px-4 py-2 bg-white dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-xl text-xs font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors shadow-sm"
+								>
 									회원 탈퇴하기
 								</button>
 							</div>

@@ -31,7 +31,7 @@ export default async function LandingPage() {
 				<div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
 					{user ? (
 						<Link
-							href="/home"
+							href="/main"
 							className="px-8 py-4 rounded-full bg-text-brand text-white font-bold text-lg hover:bg-text-brand/90 transition-all shadow-lg hover:shadow-xl hover:-translate-y-1 flex items-center gap-2"
 						>
 							내 냉장고로 이동 <ArrowRight size={20} />

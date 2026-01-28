@@ -2,42 +2,51 @@
 'use client';
 
 import { createClient } from '../../../lib/supabase/client';
-import { MoveLeft } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { loginAction } from '../../actions/authActions';
 
 export default function LoginPage() {
 	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 	const supabase = createClient();
+	const router = useRouter();
 
-	const handleLogin = (provider: 'google' | 'kakao') => {
+	// 이메일 로그인 처리
+	const handleEmailLogin = async (event: React.FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setIsLoading(true);
+		setError(null);
+
+		const formData = new FormData(event.currentTarget);
+		const result = await loginAction(formData);
+
+		if (result.success) {
+			router.push('/'); // 로그인 성공 시 홈으로
+			router.refresh(); // 헤더 업데이트 등을 위해 새로고침
+		} else {
+			setError(result.error || '로그인 실패');
+			setIsLoading(false);
+		}
+	};
+
+	// OAuth 로그인 처리
+	const handleOAuthLogin = (provider: 'google' | 'kakao') => {
 		supabase.auth.signInWithOAuth({
 			provider,
 			options: {
-				// 로그인이 끝나면 위의 callback 라우트로 돌아오게 설정
-				redirectTo: `${location.origin}/auth/callback`,
-				queryParams:
-					provider === 'kakao'
-						? {
-								scope: 'profile_nickname,profile_image', // 이메일(account_email) 제외
-							}
-						: undefined,
+				redirectTo: `${window.location.origin}/auth/callback`,
 			},
 		});
 	};
 
 	return (
 		<div className="flex min-h-[calc(100vh-4rem)] flex-col items-center justify-center bg-background px-4 py-8">
-			<div className="w-full max-w-sm space-y-8">
-				{/* 상단: 뒤로가기 및 타이틀 */}
+			<div className="w-full max-w-sm space-y-6">
+				{/* 상단: 타이틀 */}
 				<div className="text-center">
-					<Link
-						href="/"
-						className="mb-8 inline-flex items-center text-sm text-muted-foreground hover:text-text-heading transition-colors"
-					>
-						<MoveLeft className="mr-2 h-4 w-4" />
-						홈으로 돌아가기
-					</Link>
 					<h2 className="text-3xl font-bold tracking-tight text-text-heading">
 						환영합니다 👋
 					</h2>
@@ -46,11 +55,74 @@ export default function LoginPage() {
 					</p>
 				</div>
 
-				{/* 로그인 버튼 영역 */}
+				{/* 1. 이메일 로그인 폼 */}
+				<form
+					onSubmit={handleEmailLogin}
+					className="space-y-4"
+				>
+					<div className="space-y-2">
+						<input
+							name="email"
+							type="email"
+							required
+							placeholder="이메일"
+							className="w-full px-4 py-3 border border-input-border rounded-lg bg-input-bg focus:outline-none focus:ring-2 focus:ring-text-brand/20 transition-all"
+						/>
+						<input
+							name="password"
+							type="password"
+							required
+							placeholder="비밀번호"
+							className="w-full px-4 py-3 border border-input-border rounded-lg bg-input-bg focus:outline-none focus:ring-2 focus:ring-text-brand/20 transition-all"
+						/>
+					</div>
+
+					{error && (
+						<div className="text-sm text-red-500 bg-red-50 p-2 rounded text-center">
+							{error}
+						</div>
+					)}
+
+					<button
+						type="submit"
+						disabled={isLoading}
+						className="w-full py-3 px-4 bg-text-brand text-white rounded-lg font-bold shadow-md hover:bg-text-brand/90 transition-all disabled:opacity-70 flex items-center justify-center"
+					>
+						{isLoading ? (
+							<Loader2 className="animate-spin h-5 w-5" />
+						) : (
+							'로그인'
+						)}
+					</button>
+				</form>
+
+				{/* 회원가입 링크 */}
+				<div className="text-center text-sm">
+					<span className="text-muted-foreground">계정이 없으신가요? </span>
+					<Link
+						href="/signup"
+						className="font-semibold text-text-brand hover:underline"
+					>
+						회원가입
+					</Link>
+				</div>
+
+				<div className="relative">
+					<div className="absolute inset-0 flex items-center">
+						<span className="w-full border-t border-gray-300" />
+					</div>
+					<div className="relative flex justify-center text-xs uppercase">
+						<span className="bg-background px-2 text-muted-foreground">
+							또는 소셜 로그인
+						</span>
+					</div>
+				</div>
+
+				{/* 2. OAuth 로그인 버튼 영역 */}
 				<div className="space-y-3">
 					{/* 구글 로그인 */}
 					<button
-						onClick={() => handleLogin('google')}
+						onClick={() => handleOAuthLogin('google')}
 						disabled={isLoading}
 						className="flex w-full items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 disabled:opacity-70 transition-all"
 					>
@@ -80,7 +152,7 @@ export default function LoginPage() {
 
 					{/* 카카오 로그인 */}
 					<button
-						onClick={() => handleLogin('kakao')}
+						onClick={() => handleOAuthLogin('kakao')}
 						disabled={isLoading}
 						className="flex w-full items-center justify-center rounded-lg bg-[#FEE500] px-4 py-3 text-sm font-medium text-[#000000] shadow-sm hover:bg-[#FDD835] focus:outline-none focus:ring-2 focus:ring-[#FEE500] disabled:opacity-70 transition-all"
 					>

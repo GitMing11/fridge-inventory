@@ -17,18 +17,10 @@ export default function Header() {
 
 	const supabase = createClient();
 
+	// 1. 초기 마운트 및 Auth 상태 구독 (OAuth, 토큰 갱신 등 감지)
 	useEffect(() => {
 		setMounted(true);
-		// 1. 현재 로그인된 유저 확인
-		const getUser = async () => {
-			const {
-				data: { user },
-			} = await supabase.auth.getUser();
-			setUser(user);
-		};
-		getUser();
 
-		// 2. 인증 상태 변경 감지
 		const {
 			data: { subscription },
 		} = supabase.auth.onAuthStateChange((_event, session) => {
@@ -37,6 +29,18 @@ export default function Header() {
 
 		return () => subscription.unsubscribe();
 	}, [supabase]);
+
+	// 2. 경로(pathname)가 바뀔 때마다 유저 정보를 재검증
+	useEffect(() => {
+		const getUser = async () => {
+			const {
+				data: { user },
+			} = await supabase.auth.getUser();
+			setUser(user);
+		};
+
+		getUser();
+	}, [supabase, pathname]);
 
 	// 페이지 이동 시 모바일 메뉴 닫기
 	useEffect(() => {
