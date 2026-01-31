@@ -23,8 +23,15 @@ export default function Header() {
 
 		const {
 			data: { subscription },
-		} = supabase.auth.onAuthStateChange((_event, session) => {
-			setUser(session?.user ?? null);
+		} = supabase.auth.onAuthStateChange((event, session) => {
+			// 1. 세션이 있으면 유저 설정
+			if (session) {
+				setUser(session.user);
+			}
+			// 2. 로그아웃 되거나 토큰 에러로 세션이 날아간 경우
+			else if (event === 'SIGNED_OUT') {
+				setUser(null);
+			}
 		});
 
 		return () => subscription.unsubscribe();
@@ -55,7 +62,7 @@ export default function Header() {
 
 	const navItems = [
 		{ name: '기록', href: '/history' },
-		{ name: '메인', href: '/main' },
+		{ name: '냉장고', href: '/main' },
 		{ name: '카테고리', href: '/categories' },
 	];
 

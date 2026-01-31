@@ -132,6 +132,46 @@ export async function loginAction(formData: FormData) {
   return { success: true };
 }
 
+// --- 프로필 수정 액션 ---
+export async function updateProfileAction(formData: FormData) {
+  const nickname = formData.get("nickname") as string;
+
+  if (!nickname || nickname.trim().length < 2) {
+    return { success: false, error: "닉네임은 2글자 이상이어야 합니다." };
+  }
+
+  const supabase = await createClient();
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+  if (userError || !user || !user.email) {
+    return { success: false, error: "로그인된 사용자가 아닙니다." };
+  }
+
+  // 1. Supabase Auth 메타데이터 업데이트 (nickname만 수정)
+  const { error: updateError } = await supabase.auth.updateUser({
+    data: { 
+      nickname: nickname 
+    },
+  });
+
+  if (updateError) {
+    return { success: false, error: "프로필 업데이트 실패: " + updateError.message };
+  }
+
+  // 2. Prisma DB 업데이트 (nickname 컬럼 수정)
+  try {
+    await prisma.user.update({
+      where: { email: user.email },
+      data: { nickname: nickname },
+    });
+  } catch (err) {
+    console.error("Profile DB Sync Error:", err);
+  }
+
+  revalidatePath("/user");
+  return { success: true };
+}
+
 // --- 회원 탈퇴 액션 ---
 export async function deleteAccountAction() {
   const supabase = await createClient();
