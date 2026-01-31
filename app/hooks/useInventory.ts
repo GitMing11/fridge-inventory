@@ -23,6 +23,7 @@ interface DbIngredient {
   createdAt: Date;
   updatedAt: Date | null;
   category?: Category;
+  groupId: string;
 }
 
 export function useInventory() {
@@ -56,6 +57,7 @@ useEffect(() => {
             createdAt: new Date(item.createdAt).toISOString(),
             updatedAt: item.updatedAt ? new Date(item.updatedAt).toISOString() : undefined,
             category: item.category,
+            groupId: item.groupId || '',
           })) as Ingredient[];
           
           setIngredients(formattedIngredients);
@@ -73,8 +75,10 @@ useEffect(() => {
 
   // 1. 재료 추가
 const addIngredient = async (newItemData: IngredientInput) => {
-    const result = await addIngredientAction(newItemData);
-    
+  const { groupId, ...restData } = newItemData;
+
+  const result = await addIngredientAction(restData, groupId);
+
     if (result.success && result.data) {
       const newIngredient: Ingredient = {
         ...result.data,
@@ -83,6 +87,7 @@ const addIngredient = async (newItemData: IngredientInput) => {
         createdAt: new Date(result.data.createdAt).toISOString(),
         updatedAt: result.data.updatedAt ? new Date(result.data.updatedAt).toISOString() : undefined,
         category: result.data.category,
+        groupId: result.data.groupId,
       };
 
       setIngredients((prev) => [...prev, newIngredient]);
@@ -93,12 +98,10 @@ const addIngredient = async (newItemData: IngredientInput) => {
     }
   };
 
-  // 2. 재료 수정 (기존 단순 상태 변경 -> 서버 액션 호출로 변경)
+  // 2. 재료 수정
 const updateIngredient = async (item: Ingredient) => {
-    // 1. item 객체에서 id와 나머지 데이터를 분리하거나 필요한 데이터만 추출
     const { id } = item;
     
-    // 2. Server Action에 보낼 데이터 포맷팅 (불필요한 필드 제거 및 타입 맞추기)
     const updateData = {
       name: item.name,
       categoryId: Number(item.categoryId),
@@ -120,6 +123,7 @@ const updateIngredient = async (item: Ingredient) => {
         createdAt: new Date(result.data.createdAt).toISOString(),
         updatedAt: result.data.updatedAt ? new Date(result.data.updatedAt).toISOString() : undefined,
         category: result.data.category,
+        groupId: result.data.groupId,
       };
 
       setIngredients((prev) =>

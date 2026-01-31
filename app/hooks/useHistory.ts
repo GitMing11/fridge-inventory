@@ -15,9 +15,11 @@ interface DbHistoryItem {
   purchasedAt: Date;
   consumedAt: Date;
   status: string;
+  groupId: string;
+  userId: string | null;
 }
 
-export function useHistory() {
+export function useHistory(groupId?: string) {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ const fetchHistory = useCallback(async () => {
   setError(null);
     try {
       // Server Action 호출
-      const result = await getHistoryAction();
+      const result = await getHistoryAction(groupId);
 
       if (result.success && result.data) {
         const dbData = result.data as DbHistoryItem[];
@@ -40,6 +42,8 @@ const fetchHistory = useCallback(async () => {
           purchasedAt: new Date(item.purchasedAt).toISOString(),
           consumedAt: new Date(item.consumedAt).toISOString(),
           status: item.status as 'eaten' | 'discarded',
+          groupId: item.groupId,
+          userId: item.userId,
         }));
         setHistory(formattedHistory);
       } else {
@@ -54,7 +58,7 @@ const fetchHistory = useCallback(async () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [groupId]);
 
   useEffect(() => {
     fetchHistory();

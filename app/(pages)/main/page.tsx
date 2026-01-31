@@ -65,6 +65,9 @@ export default function MainPage() {
 		return matchesSearch && matchesCategory;
 	});
 
+	// 현재 그룹 ID 계산 (재료가 있으면 그 그룹 ID, 없으면 빈 값으로 서버가 기본 그룹 처리)
+	const currentGroupId = ingredients.length > 0 ? ingredients[0].groupId : '';
+
 	// --- Handlers ---
 	const handleConfirmConsume = async (quantity: number) => {
 		if (!consumingTarget) return;
@@ -152,6 +155,7 @@ export default function MainPage() {
 						setShowModal(false);
 						setEditingItem(null);
 					}}
+					currentGroupId={currentGroupId}
 				/>
 			)}
 
