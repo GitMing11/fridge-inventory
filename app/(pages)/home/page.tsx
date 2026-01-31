@@ -1,6 +1,6 @@
 // app/page.tsx
 import Link from 'next/link';
-import { ArrowRight, Refrigerator, Bell, Users, BarChart3 } from 'lucide-react';
+import { ArrowRight, Refrigerator, Bell, Users } from 'lucide-react';
 import { createClient } from '../../../lib/supabase/server';
 
 export default async function LandingPage() {
@@ -64,7 +64,7 @@ export default async function LandingPage() {
 				<div className="max-w-6xl mx-auto">
 					<div className="text-center mb-16">
 						<h2 className="text-3xl font-bold text-text-heading mb-4">
-							왜 '냉장고 재고관리'인가요?
+							왜 &apos;냉장고 재고관리&apos;인가요?
 						</h2>
 						<p className="text-muted-foreground">
 							복잡한 냉장고 정리, 이제 앱 하나로 해결하세요.

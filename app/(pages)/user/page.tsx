@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { deleteAccountAction } from '../../actions/authActions';
+import Image from 'next/image';
 
 export default function UserPage() {
 	const [user, setUser] = useState<User | null>(null);
@@ -113,7 +114,7 @@ export default function UserPage() {
 					<div className="relative shrink-0">
 						<div className="w-24 h-24 md:w-28 md:h-28 rounded-full border-4 border-background shadow-md overflow-hidden bg-neutral">
 							{avatarUrl ? (
-								<img
+								<Image
 									src={avatarUrl}
 									alt="Profile"
 									className="w-full h-full object-cover"

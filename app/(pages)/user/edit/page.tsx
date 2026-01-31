@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createClient } from '../../../../lib/supabase/client';
 import { updateProfileAction } from '../../../actions/authActions';
 import { MoveLeft, Loader2, Save, User as UserIcon } from 'lucide-react';
+import Image from 'next/image';
 
 export default function EditProfilePage() {
 	const [loading, setLoading] = useState(true);
@@ -105,9 +106,11 @@ export default function EditProfilePage() {
 							<div className="w-full h-full rounded-full border-4 border-card bg-neutral flex items-center justify-center overflow-hidden shadow-sm">
 								{/* 이미지가 있으면 이미지 표시, 없으면 아이콘 표시 */}
 								{avatarUrl ? (
-									<img
+									<Image
 										src={avatarUrl}
 										alt="Profile"
+										width={112}
+										height={112}
 										className="w-full h-full object-cover"
 									/>
 								) : (

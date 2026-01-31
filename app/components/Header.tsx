@@ -7,6 +7,7 @@ import { Moon, Sun, Menu, X, LogIn, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { createClient } from '../../lib/supabase/client';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import Image from 'next/image';
 
 export default function Header() {
 	const pathname = usePathname();
@@ -154,9 +155,11 @@ export default function Header() {
 
 									{/* 프로필 이미지 */}
 									{user.user_metadata.avatar_url ? (
-										<img
+										<Image
 											src={user.user_metadata.avatar_url}
 											alt="Profile"
+											width={28}
+											height={28}
 											className="w-7 h-7 rounded-full object-cover shadow-sm group-hover:shadow"
 										/>
 									) : (
