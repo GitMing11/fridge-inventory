@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Category } from '../../types';
 import { 
   getCategoriesAction, 
@@ -8,27 +8,36 @@ import {
 } from '../actions/categoryActions';
 import toast from 'react-hot-toast';
 
-export function useCategories() {
+export function useCategories(groupId?: string) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 초기 데이터 로드
+const fetchCategories = useCallback(async () => {
+    setLoading(true);
+    const result = await getCategoriesAction(groupId);
+    
+    if (result.success && result.data) {
+      setCategories(result.data as Category[]);
+    } else {
+      toast.error(result.error || '카테고리 로딩 실패');
+    }
+    setLoading(false);
+  }, [groupId]);
+
+  // 초기 데이터 로드 및 groupId 변경 시 재로딩
   useEffect(() => {
-    const fetchCategories = async () => {
-      const result = await getCategoriesAction();
-      if (result.success && result.data) {
-        setCategories(result.data as Category[]);
-      } else {
-        toast.error(result.error || '카테고리 로딩 실패');
-      }
-      setLoading(false);
-    };
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   // 1. 카테고리 추가
   const addCategory = async (name: string, icon: string, color: string) => {
-    const result = await createCategoryAction(name, icon, color);
+  
+    if (!groupId) {
+        toast.error('그룹 정보가 없습니다.');
+        return false;
+    }
+    const result = await createCategoryAction(name, icon, color, groupId);
     
     if (result.success && result.data) {
       setCategories((prev) => [...prev, result.data as Category]);
@@ -76,5 +85,6 @@ export function useCategories() {
     addCategory,
     updateCategory,
     deleteCategory,
+    refreshCategories: fetchCategories,
   };
 }

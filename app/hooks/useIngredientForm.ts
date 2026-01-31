@@ -11,6 +11,7 @@ interface UseIngredientFormProps {
   onUpdate?: (updatedItem: Ingredient) => Promise<boolean>;
   onClose: () => void;
   setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
+  currentGroupId: string;
 }
 
 export function useIngredientForm({
@@ -19,6 +20,7 @@ export function useIngredientForm({
   onUpdate,
   onClose,
   setCategories,
+  currentGroupId,
 }: UseIngredientFormProps) {
   const [newIngredient, setNewIngredient] = useState({
     name: '',
@@ -27,11 +29,18 @@ export function useIngredientForm({
     unit: '',
     expiration: getToday(),
     purchasedAt: getToday(),
+    groupId: currentGroupId,
   });
 
   const [newCategory, setNewCategory] = useState('');
 
-  // 초기 데이터 로드
+useEffect(() => {
+    if (!initialData && currentGroupId) {
+       setNewIngredient(prev => ({ ...prev, groupId: currentGroupId }));
+    }
+  }, [currentGroupId, initialData]);
+
+  // 초기 데이터 로드 (수정 모드)
   useEffect(() => {
     if (initialData) {
       setNewIngredient({
@@ -41,6 +50,7 @@ export function useIngredientForm({
         unit: initialData.unit,
         expiration: formatDateInput(initialData.expiration),
         purchasedAt: formatDateInput(initialData.purchasedAt),
+        groupId: initialData.groupId,
       });
     }
   }, [initialData]);
@@ -51,11 +61,13 @@ export function useIngredientForm({
   };
 
   // 핸들러: 카테고리 추가
-  const handleAddCategory = async () => {
+const handleAddCategory = async () => {
     if (!newCategory.trim()) return;
 
     try {
-      const result = await createCategoryAction(newCategory.trim(), '📦', 'gray');
+      // 카테고리 생성 시 groupId 전달
+      const targetGroupId = newIngredient.groupId || currentGroupId;
+      const result = await createCategoryAction(newCategory.trim(), '📦', 'gray', targetGroupId);
 
       if (result.success && result.data) {
         setCategories((prev) => [...prev, result.data as Category]);
@@ -72,8 +84,8 @@ export function useIngredientForm({
   };
 
   // 핸들러: 폼 제출
-  const handleSubmit = async () => {
-    const { name, categoryId, quantity, unit, expiration, purchasedAt } = newIngredient;
+const handleSubmit = async () => {
+    const { name, categoryId, quantity, unit, expiration, purchasedAt, groupId } = newIngredient;
 
     if (!name || !categoryId || !unit || !expiration || !purchasedAt) {
       toast.error('모든 필드를 채워주세요.');
@@ -84,13 +96,13 @@ export function useIngredientForm({
       let success = false;
 
       if (initialData && onUpdate) {
-        // 부모(useInventory)에서 받은 onUpdate 함수 호출
-        // 기존 데이터를 기반으로 ID와 업데이트된 필드를 합침
+        // [수정 모드]
         const updatedItem: Ingredient = {
           ...initialData,
           ...newIngredient,
           categoryId: Number(categoryId),
           quantity: Number(quantity),
+          groupId: groupId,
         };
         
         success = await onUpdate(updatedItem);
@@ -107,6 +119,7 @@ export function useIngredientForm({
           unit,
           expiration,
           purchasedAt,
+          groupId: groupId, 
         };
 
         success = await onAdd(newItem);

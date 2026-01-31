@@ -1,11 +1,11 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 
-interface HomeHeaderProps {
+interface MainHeaderProps {
 	onAddClick: () => void;
 }
 
-export default function HomeHeader({ onAddClick }: HomeHeaderProps) {
+export default function MainHeader({ onAddClick }: MainHeaderProps) {
 	return (
 		<section className="flex flex-col md:flex-row md:items-center justify-between gap-6">
 			<div>

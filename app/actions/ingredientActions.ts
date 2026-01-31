@@ -2,6 +2,7 @@
 
 import { prisma } from "../../lib/prisma";
 import { revalidatePath } from 'next/cache';
+import { createClient } from '../../lib/supabase/server';
 
 interface AddIngredientParams {
   name: string;
@@ -12,9 +13,51 @@ interface AddIngredientParams {
   purchasedAt: string | Date;
 }
 
-export async function getIngredientsAction() {
+// 현재 로그인한 유저의 DB 정보와 기본 그룹 ID 가져오기
+async function getUserAndGroup(groupId?: string) {
+  const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
+
+  if (!authUser || !authUser.email) {
+    return { user: null, groupId: null, error: '로그인이 필요합니다.' };
+  }
+
+  // 이메일로 DB 유저 찾기
+  const user = await prisma.user.findUnique({
+    where: { email: authUser.email },
+    include: { memberships: true } 
+  });
+
+  if (!user) {
+    return { user: null, groupId: null, error: '사용자 정보를 찾을 수 없습니다.' };
+  }
+
+  // groupId가 지정되지 않았다면, 사용자의 첫 번째 그룹 사용
+  let targetGroupId = groupId;
+  if (!targetGroupId) {
+    const firstMembership = user.memberships[0];
+    if (firstMembership) {
+      targetGroupId = firstMembership.groupId;
+    }
+  }
+
+  if (!targetGroupId) {
+    return { user, groupId: null, error: '속해있는 냉장고 그룹이 없습니다.' };
+  }
+
+  return { user, groupId: targetGroupId, error: null };
+}
+
+// --- 1. 재료 목록 조회 (그룹별) ---
+export async function getIngredientsAction(groupId?: string) {
   try {
+    const { groupId: targetGroupId, error } = await getUserAndGroup(groupId);
+    if (error || !targetGroupId) {
+        return { success: false, error: error || '그룹을 찾을 수 없습니다.' };
+    }
+
     const ingredients = await prisma.ingredient.findMany({
+      where: { groupId: targetGroupId },
       include: { category: true },
       orderBy: { expiration: 'asc' },
     });
@@ -25,7 +68,8 @@ export async function getIngredientsAction() {
   }
 }
 
-export async function addIngredientAction(data: AddIngredientParams) {
+// --- 2. 재료 추가 ---
+export async function addIngredientAction(data: AddIngredientParams, groupId?: string) {
   // 1. 유효성 검사
   const { name, categoryId, quantity, unit, expiration, purchasedAt } = data;
   
@@ -34,7 +78,11 @@ export async function addIngredientAction(data: AddIngredientParams) {
   }
 
   try {
-    // 2. DB 저장
+    // 2. 유저 및 그룹 확인
+    const { user, groupId: targetGroupId, error } = await getUserAndGroup(groupId);
+    if (error || !targetGroupId || !user) return { success: false, error };
+
+    // 3. DB 저장
     const newIngredient = await prisma.ingredient.create({
       data: {
         name,
@@ -43,16 +91,15 @@ export async function addIngredientAction(data: AddIngredientParams) {
         unit,
         expiration: new Date(expiration),
         purchasedAt: new Date(purchasedAt),
+        groupId: targetGroupId,
+        addedById: user.id,
       },
       include: {
-        category: true, // 프론트엔드 업데이트를 위해 카테고리 정보 포함
+        category: true,
       },
     });
 
-    // 3. 캐시 갱신 (홈 페이지 데이터 새로고침 트리거)
     revalidatePath('/');
-
-    // 4. 결과 반환 (직렬화 가능한 객체여야 함)
     return { success: true, data: newIngredient };
   } catch (error) {
     console.error('Server Action Error:', error);
@@ -60,7 +107,7 @@ export async function addIngredientAction(data: AddIngredientParams) {
   }
 }
 
-// --- 1. 재료 수정 (Update) ---
+// --- 3. 재료 수정 ---
 export async function updateIngredientAction(id: number, data: AddIngredientParams) {
   const { name, categoryId, quantity, unit, expiration, purchasedAt } = data;
 
@@ -86,13 +133,24 @@ export async function updateIngredientAction(id: number, data: AddIngredientPara
   }
 }
 
-// --- 2. 재료 소비/폐기 (Consume) ---
+// --- 2. 재료 소비/폐기 ---
 export async function consumeIngredientAction(
   id: number,
   status: 'eaten' | 'discarded',
   quantity: number
 ) {
   try {
+    // 로그인 유저 확인 (누가 소비했는지 기록하기 위해)
+    const supabase = await createClient();
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    
+    let dbUserId: string | null = null;
+    
+    if (authUser?.email) {
+         const user = await prisma.user.findUnique({ where: { email: authUser.email }});
+         if (user) dbUserId = user.id;
+    }
+
     // 트랜잭션으로 처리하여 데이터 무결성 보장
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = await prisma.$transaction(async (tx: any) => {
@@ -120,6 +178,8 @@ export async function consumeIngredientAction(
           purchasedAt: ingredient.purchasedAt,
           consumedAt: new Date(),
           status,
+          groupId: ingredient.groupId,
+          userId: dbUserId,
         },
       });
 
@@ -148,6 +208,15 @@ export async function consumeIngredientAction(
 // --- 3. 일괄 소비/폐기 (Bulk Consume) ---
 export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discarded') {
   try {
+    // 로그인 유저 확인
+     const supabase = await createClient();
+     const { data: { user: authUser } } = await supabase.auth.getUser();
+     let dbUserId: string | null = null;
+     if (authUser?.email) {
+          const user = await prisma.user.findUnique({ where: { email: authUser.email }});
+          if (user) dbUserId = user.id;
+    }
+    
     await Promise.all(
       ids.map((id) => 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -165,7 +234,9 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
                 expiration: item.expiration,
                 purchasedAt: item.purchasedAt,
                 consumedAt: new Date(),
-                status
+                status,
+                groupId: item.groupId,
+                userId: dbUserId,
              }
           });
           await tx.ingredient.delete({ where: { id } });

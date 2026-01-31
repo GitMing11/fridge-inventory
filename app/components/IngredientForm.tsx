@@ -14,6 +14,7 @@ interface Props {
 	onClose: () => void;
 	setCategories: React.Dispatch<React.SetStateAction<Category[]>>;
 	categories: Category[];
+	currentGroupId: string;
 }
 
 export default function IngredientForm(props: Props) {

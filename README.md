@@ -15,9 +15,14 @@ Fridge Inventory는 냉장고 속 식재료의 **입고부터 소비, 폐기까�
 - **기록 관리:** 재료가 '먹어서(eaten)' 사라진 건지, '상해서 버린(discarded)' 건지 상태를 기록합니다.
 - **데이터 축적:** 언제 어떤 재료를 구매하고 소비했는지 히스토리 페이지에서 모아볼 수 있어 소비 습관을 파악할 수 있습니다.
 
-### 3. ⚡ 편의 기능 (Utilities)
+### 3. 🔐 사용자 및 그룹 관리 (Auth & Groups)
 
-- **카테고리 커스터마이징:** 사용자 환경에 맞춰 자유롭게 카테고리를 추가하고 관리할 수 있습니다.
+- **개인화된 냉장고:** 로그인 기반으로 나만의 냉장고 인벤토리를 관리할 수 있습니다.
+- **그룹 공유 (준비 중):** 가족이나 룸메이트와 함께 냉장고를 공유하고 관리할 수 있는 그룹 기능을 지원합니다.
+
+### 4. ⚡ 편의 기능 (Utilities)
+
+- **카테고리 커스터마이징:** 아이콘과 색상을 포함하여 자유롭게 카테고리를 추가하고 시각적으로 관리할 수 있습니다.
 - **일괄 처리:** 여러 재료를 선택해 한 번에 소비하거나 폐기 처리할 수 있습니다.
 - **검색 및 필터:** 이름 검색, 카테고리별 필터링, 다양한 정렬 옵션(유통기한순, 구매일순 등)을 지원합니다.
 
@@ -25,13 +30,14 @@ Fridge Inventory는 냉장고 속 식재료의 **입고부터 소비, 폐기까�
 
 ## 🛠 Tech Stack
 
-| 분류          | 기술 스택                                                                                                                                                                                              |
-| :------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Framework** | ![Next.js](https://img.shields.io/badge/Next.js_15-black?style=flat-square&logo=next.js) (App Router)                                                                                                  |
-| **Language**  | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)                                                                                        |
-| **Database**  | ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=flat-square&logo=mysql&logoColor=white) + ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white) |
-| **Styling**   | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)                                                                                  |
-| **State**     | React Hooks & Server Actions                                                                                                                                                                           |
+| 분류          | 기술 스택                                                                                                                                                                                                             |
+| :------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Framework** | ![Next.js](https://img.shields.io/badge/Next.js_15-black?style=flat-square&logo=next.js) (App Router)                                                                                                                 |
+| **Language**  | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)                                                                                                       |
+| **Database**  | ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat-square&logo=postgresql&logoColor=white) + ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=flat-square&logo=prisma&logoColor=white) |
+| **Auth**      | ![NextAuth.js](<https://img.shields.io/badge/Auth.js(NextAuth)-black?style=flat-square&logo=auth0>)                                                                                                                   |
+| **Styling**   | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)                                                                                              |
+| **State**     | React Hooks & Server Actions                                                                                                                                                                                          |
 
 ## 🛠 Installation & Setup
 
