@@ -13,8 +13,8 @@ interface AddIngredientParams {
   purchasedAt: string | Date;
 }
 
-// [Helper] 현재 로그인한 유저의 DB 정보와 기본 그룹 ID 가져오기
-async function getUserAndGroup(groupId?: number) {
+// 현재 로그인한 유저의 DB 정보와 기본 그룹 ID 가져오기
+async function getUserAndGroup(groupId?: string) {
   const supabase = await createClient();
   const { data: { user: authUser } } = await supabase.auth.getUser();
 
@@ -49,7 +49,7 @@ async function getUserAndGroup(groupId?: number) {
 }
 
 // --- 1. 재료 목록 조회 (그룹별) ---
-export async function getIngredientsAction(groupId?: number) {
+export async function getIngredientsAction(groupId?: string) {
   try {
     const { groupId: targetGroupId, error } = await getUserAndGroup(groupId);
     if (error || !targetGroupId) {
@@ -57,7 +57,7 @@ export async function getIngredientsAction(groupId?: number) {
     }
 
     const ingredients = await prisma.ingredient.findMany({
-      where: { groupId: targetGroupId }, // [수정] 그룹 필터링 추가
+      where: { groupId: targetGroupId },
       include: { category: true },
       orderBy: { expiration: 'asc' },
     });
@@ -69,7 +69,7 @@ export async function getIngredientsAction(groupId?: number) {
 }
 
 // --- 2. 재료 추가 ---
-export async function addIngredientAction(data: AddIngredientParams, groupId?: number) {
+export async function addIngredientAction(data: AddIngredientParams, groupId?: string) {
   // 1. 유효성 검사
   const { name, categoryId, quantity, unit, expiration, purchasedAt } = data;
   
@@ -143,7 +143,8 @@ export async function consumeIngredientAction(
     // 로그인 유저 확인 (누가 소비했는지 기록하기 위해)
     const supabase = await createClient();
     const { data: { user: authUser } } = await supabase.auth.getUser();
-    let dbUserId: number | null = null;
+    
+    let dbUserId: string | null = null;
     
     if (authUser?.email) {
          const user = await prisma.user.findUnique({ where: { email: authUser.email }});
@@ -176,7 +177,8 @@ export async function consumeIngredientAction(
           expiration: ingredient.expiration,
           purchasedAt: ingredient.purchasedAt,
           consumedAt: new Date(),
-          status,groupId: ingredient.groupId,
+          status,
+          groupId: ingredient.groupId,
           userId: dbUserId,
         },
       });
@@ -209,7 +211,7 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
     // 로그인 유저 확인
      const supabase = await createClient();
      const { data: { user: authUser } } = await supabase.auth.getUser();
-     let dbUserId: number | null = null;
+     let dbUserId: string | null = null;
      if (authUser?.email) {
           const user = await prisma.user.findUnique({ where: { email: authUser.email }});
           if (user) dbUserId = user.id;

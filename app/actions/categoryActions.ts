@@ -4,8 +4,8 @@ import { prisma } from "../../lib/prisma";
 import { revalidatePath } from 'next/cache';
 import { createClient } from '../../lib/supabase/server';
 
-// [Helper] 현재 로그인한 유저의 DB 정보와 기본 그룹 ID 가져오기
-async function getUserAndGroup(groupId?: number) {
+// 현재 로그인한 유저의 DB 정보와 기본 그룹 ID 가져오기
+async function getUserAndGroup(groupId?: string) {
   const supabase = await createClient();
   const { data: { user: authUser } } = await supabase.auth.getUser();
 
@@ -40,7 +40,7 @@ async function getUserAndGroup(groupId?: number) {
 }
 
 // 1. 카테고리 목록 조회 (그룹별 조회)
-export async function getCategoriesAction(groupId?: number) {
+export async function getCategoriesAction(groupId?: string) {
   try {
     const { groupId: targetGroupId, error } = await getUserAndGroup(groupId);
     if (error || !targetGroupId) {
@@ -61,7 +61,7 @@ export async function getCategoriesAction(groupId?: number) {
 }
 
 // 2. 카테고리 생성
-export async function createCategoryAction(name: string, icon: string, color: string, groupId?: number) {
+export async function createCategoryAction(name: string, icon: string, color: string, groupId?: string) {
   if (!name || typeof name !== 'string') {
     return { success: false, error: '카테고리 이름이 필요합니다.' };
   }

@@ -18,17 +18,17 @@ generator client {
 
 // NextAuth.js (Auth.js) 호환을 위한 Account 모델
 model Account {
-  id                Int     @id @default(autoincrement())
-  userId            Int
+  id                String  @id @default(cuid())
+  userId            String
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String?
-  access_token      String?
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String?
+  id_token          String? @db.Text
   session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -37,21 +37,24 @@ model Account {
 }
 
 model Session {
-  id           Int      @id @default(autoincrement())
+  id           String   @id @default(cuid())
   sessionToken String   @unique
-  userId       Int
+  userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
+  id            String    @id @default(cuid())
   email         String    @unique
   password      String? // OAuth 로그인 시 비밀번호가 없을 수 있음
   name          String? // 표시 이름 (기본)
   nickname      String? // 별명
   image         String? // 프로필 이미지 (avatar -> image로 표준화 권장)
   emailVerified DateTime? // 이메일 인증 여부
+
+  // 다크모드/테마 유저 설정 저장 기능
+  theme String? @default("system") // 'light' | 'dark' | 'system'
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -72,7 +75,7 @@ model User {
 // --------------------------------------
 
 model Group {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(cuid())
   name String // 예: "우리집 냉장고", "자취방"
   type String @default("GROUP") // 'PERSONAL' or 'GROUP'
   code String @unique @default(uuid()) // 초대 코드
@@ -89,14 +92,14 @@ model Group {
 }
 
 model GroupMember {
-  id   Int    @id @default(autoincrement())
+  id   String @id @default(cuid())
   role String @default("MEMBER") // 'OWNER', 'ADMIN', 'MEMBER'
 
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   @@unique([userId, groupId])
 }
@@ -111,8 +114,8 @@ model Category {
   icon  String @default("📦")
   color String @default("gray")
 
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   ingredients Ingredient[]
 
@@ -133,13 +136,12 @@ model Ingredient {
   category   Category @relation(fields: [categoryId], references: [id])
   categoryId Int
 
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   // 누가 추가했는지 추적
-  // 사용자가 탈퇴해도 기록은 남겨야 할 수 있으므로 User? (Optional) 혹은 onDelete 전략 고민 필요
-  addedBy   User? @relation("IngredientAdder", fields: [addedById], references: [id], onDelete: SetNull)
-  addedById Int?
+  addedBy   User?   @relation("IngredientAdder", fields: [addedById], references: [id], onDelete: SetNull)
+  addedById String?
 }
 
 model IngredientHistory {
@@ -156,12 +158,12 @@ model IngredientHistory {
   consumedAt    DateTime @default(now())
   status        String // 'eaten' | 'discarded'
 
-  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int
+  group   Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String
 
   // 누가 처리했는지 기록
-  user   User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId Int?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String?
 }
 
 // --------------------------------------
@@ -176,11 +178,11 @@ model Memo {
   updatedAt DateTime @updatedAt
 
   // 작성자 (필수)
-  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId Int
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
 
   // 소속 그룹 (선택)
   // groupId가 있으면 '그룹 메모', 없으면(null) '개인 메모'로 간주
-  group   Group? @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  groupId Int?
+  group   Group?  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  groupId String?
 }
