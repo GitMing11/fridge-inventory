@@ -118,6 +118,8 @@ export default function UserPage() {
 									src={avatarUrl}
 									alt="Profile"
 									className="w-full h-full object-cover"
+									width={112}
+									height={112}
 								/>
 							) : (
 								<div className="w-full h-full flex items-center justify-center text-muted-foreground">
