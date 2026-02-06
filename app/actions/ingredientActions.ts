@@ -251,3 +251,24 @@ export async function bulkConsumeAction(ids: number[], status: 'eaten' | 'discar
     return { success: false, error: '일괄 처리에 실패했습니다.' };
   }
 }
+
+export async function getRecentGroupsAction() {
+  const { user, error } = await getUserAndGroup();
+  if (error || !user) return { success: false, error };
+
+  // 사용자가 속한 모든 그룹과 해당 그룹의 최근 수정된 재료 5개 가져오기
+  const groups = await prisma.group.findMany({
+    where: {
+      members: { some: { userId: user.id } }
+    },
+    include: {
+      ingredients: {
+        orderBy: { updatedAt: 'desc' },
+        take: 5,
+        include: { category: true }
+      }
+    }
+  });
+
+  return { success: true, data: groups };
+}

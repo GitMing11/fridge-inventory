@@ -3,7 +3,14 @@ import { type NextRequest } from "next/server";
 import { updateSession } from "./lib/supabase/proxy";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+const publicRoutes = ['/'] // 로그인 없이 볼 수 있는 경로 목록
+  const isPublicRoute = publicRoutes.includes(request.nextUrl.pathname)
+
+  if (isPublicRoute) {
+    return // 혹은 필요한 경우 여기서 특별한 처리
+  }
+
+  return await updateSession(request)
 }
 
 export const config = {
